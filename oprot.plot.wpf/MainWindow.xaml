@@ -1,0 +1,330 @@
+﻿<Window x:Class="oprot.plot.wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:local="clr-namespace:oprot.plot.wpf" 
+        xmlns:ppcore="clr-namespace:oprot.plot.core;assembly=oprot.plot.core" 
+        xmlns:properties="clr-namespace:oprot.plot.wpf.Properties"
+        mc:Ignorable="d"
+        Icon="/Resources/icon.png"
+        Title="oprot.plot.wpf" Height="494" Width="801" WindowState="Maximized">
+    <Window.DataContext >
+        <local:MainViewModel x:Name="_model"/>
+    </Window.DataContext>
+    <Window.Resources>
+        <ObjectDataProvider x:Key="dataFromEnumCurve" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="ppcore:GraphFeatureKind"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="dataFromEnumFuseCurve" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="ppcore:FuseCurveType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="dataFromEnumFuseSaverFuse" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="ppcore:FuseSaverFuse"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="dataFromEnumTripSaverFuse" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="ppcore:TripSaverFuse"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <local:BoolToVisibilityConverter x:Key="BoolToCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" />
+        <local:BoolToVisibilityConverter x:Key="BoolToCollapsedInvertedConverter" TrueValue="Collapsed" FalseValue="Visible" />
+        <local:OxyColorToBrushConverter x:Key="OxyToBrushConverter" />
+        <local:OxyColorToBrushFadedConverter x:Key="OxyToBrushConverterFaded" />
+        <DataTemplate DataType="{x:Type ppcore:GenericInverseCharacteristic}">
+            <StackPanel>
+                <Grid>
+                    <Label Content="Pickup (A):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding Pickup}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+
+                <Grid>
+                    <Label Content="TMS (s):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding TMS}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+                <Grid>
+                    <Label Content="Max Trip (s):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding MaxTripTime}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+                <Grid>
+                    <Label Content="HiSet (A):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding HiSetPickup}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+                <Grid>
+                    <Label Content="Min Trip Mul:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding MinTripMultiplier}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+                <Grid>
+                    <CheckBox Content="Show discrimination margin" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="180" Height="20" IsChecked="{Binding ShowDiscriminationMargin}" />
+                </Grid>
+                <Grid Visibility="{Binding ShowDiscriminationMargin, Converter={StaticResource BoolToCollapsedConverter}}">
+                    <Label Content="Margin (s):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding DiscriminationMargin}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ppcore:DefiniteTimeCharacteristic}">
+            <StackPanel>
+                <Grid>
+                    <Label Content="Pickup (A):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding Pickup}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                </Grid>
+                <Grid>
+                    <Label Content="DefT (s):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding Time}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+                <Grid>
+                    <Label Content="HiSet (A):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding HiSetPickup}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+                <Grid>
+                    <CheckBox Content="Show discrimination margin" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="180" Height="20" IsChecked="{Binding ShowDiscriminationMargin}" />
+                </Grid>
+                <Grid Visibility="{Binding ShowDiscriminationMargin, Converter={StaticResource BoolToCollapsedConverter}}">
+                    <Label Content="Margin (s):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding DiscriminationMargin}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ppcore:Fuse}">
+            <StackPanel>
+                <Grid>
+                    <Label Content="Fuse Rating:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <ComboBox  HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" ItemsSource="{Binding FuseRatings}" SelectedItem="{Binding Path=Rating}" />
+                </Grid>
+                
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ppcore:FuseSaver}">
+            <StackPanel>
+                <Grid>
+                    <Label Content="Fuse Curve:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <ComboBox  HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" ItemsSource="{Binding Source={StaticResource dataFromEnumFuseSaverFuse}}" SelectedItem="{Binding Path=FuseType}" />
+                </Grid>
+                <Grid>
+                    <Label Content="Fuse Rating:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <ComboBox  HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" ItemsSource="{Binding Fuse.FuseRatings}" SelectedItem="{Binding Path=Fuse.Rating}" />
+                </Grid>
+                <Grid>
+                    <Label Content="Max Trip (s):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding MaxTripTime}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+                <Grid>
+                    <Label Content="HiSet Mul:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding HiSetMul}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+                <Grid>
+                    <Label Content="Min Trip Mul:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding MinTripMultiplier}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ppcore:TripSaver}">
+            <StackPanel>
+                <Grid>
+                    <Label Content="Fuse Rating:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <ComboBox  HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" ItemsSource="{Binding Source={StaticResource dataFromEnumTripSaverFuse}}" SelectedItem="{Binding Path=Fuse}" />
+                </Grid>
+                <Grid>
+                    <Label Content="Max Trip (s):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding MaxTripTime}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+                <Grid>
+                    <Label Content="HiSet Mul:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding HiSetMul}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+                <Grid>
+                    <Label Content="Min Trip Mul:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding MinTripMultiplier}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type ppcore:FaultLevelAnnotation}">
+            <StackPanel>
+                <Grid>
+                    <Label Content="Current :" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding Current}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ppcore:CDGCharacteristic}">
+            <StackPanel>
+                <Grid>
+                    <Label Content="Plug Setting (A):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding PlugSetting}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                </Grid>
+                <Grid>
+                    <Label Content="Time Setting:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" local:InputBindingsManager.UpdateOnEnter="TextBox.Text">
+                        <TextBox.Text>
+                            <Binding Path="TimeSetting">
+                                <Binding.ValidationRules>
+                                    <local:TimeSettingValidationRule ValidationStep="RawProposedValue"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                </Grid>
+                <Grid>
+                    <Label Content="CT Ratio:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding CTRatio}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                </Grid>
+                <Grid>
+                    <CheckBox Content="Show discrimination margin" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="180" Height="20" IsChecked="{Binding ShowDiscriminationMargin}" />
+                </Grid>
+                <Grid Visibility="{Binding ShowDiscriminationMargin, Converter={StaticResource BoolToCollapsedConverter}}">
+                    <Label Content="Margin (s):" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding DiscriminationMargin}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid>
+        <DockPanel Margin="0,0,0,0">
+            <ToolBarTray Height="50" VerticalAlignment="Top" DockPanel.Dock="Top">
+                <ToolBar Height="50">
+                    <Button Click="mnuClear_Click">
+                        <Image Source="Resources/ClearIcon.png" ToolTip="Clear"/>
+                    </Button>
+                    <Button Click="mnuOpen_Click" >
+                        <Image Source="Resources/OpenIcon.png"  ToolTip="Open" />
+                    </Button>
+                    <Button Click="mnuSaveAs_Click" >
+                        <Image Source="Resources/SaveIcon.png" ToolTip="Save"/>
+                    </Button>
+                    <Button Click="mnuSavePlot_Click" >
+                        <Image Source="Resources/ExportImageIcon.png" ToolTip="Export to image"/>
+                    </Button>
+                    <Button Click="mnuCopy_Click" >
+                        <Image Source="Resources/DuplicateIcon.png" ToolTip="Copy to clipboard"/>
+                    </Button>
+                    <Button Click="mnuPrint_click" >
+                        <Image Source="Resources/Print.png" ToolTip="Print" />
+                    </Button>
+                    <Button Click="btnAddCurve_Click" >
+                        <Image Source="Resources/AddIcon.png" ToolTip="Add curve"/>
+                    </Button>
+                    <Button Command="{Binding DeleteCurve}" CommandParameter="{Binding SelectedItem, ElementName=listBox}" >
+                        <Image Source="Resources/DeleteIcon.png" ToolTip="Delete curve"/>
+                    </Button>
+                    <Button Click="mnuShowChart_Click" >
+                        <Image Source="Resources/TableIcon.png" ToolTip="Show table"/>
+                    </Button>
+                    <Button Click="mnuAbout_Click" >
+                        <Image Source="Resources/AboutIcon.png" ToolTip="About" />
+                    </Button>
+
+                </ToolBar>
+            </ToolBarTray>
+
+            <Expander x:Name="expSettings" HorizontalAlignment="Left" ExpandDirection="Right" DockPanel.Dock="Left" >
+                <Expander.Header>
+                    <TextBlock Text="Settings">
+                        <TextBlock.LayoutTransform>
+                            <RotateTransform Angle="90"/>
+                        </TextBlock.LayoutTransform>
+                    </TextBlock>
+                </Expander.Header>
+                <Grid Background="#FFE5E5E5" Width="300">
+                    <Label Content="Minimum Amps" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,4,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding MinimumCurrent, Source={x:Static properties:Settings.Default}}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                    <Label Content="Number of Samples" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,50,0,0"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,54,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding NumberOfSamples, Source={x:Static properties:Settings.Default}}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                    <Label Content="Plot Title" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,75,0,0"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,79,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding PlotTitle}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                    <Label Content="Base Voltage (v)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,100,0,0"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,104,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding BaseVoltage}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                    <Label Content="Maximum Amps" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,25,0,0"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,29,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding MaximumCurrent, Source={x:Static properties:Settings.Default}}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                    <Label Content="Absolute Max (A)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,125,0,0"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,129,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding ProtectionPlot.Axes[0].AbsoluteMaximum}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                    <Label Content="Absolute Min (A)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,150,0,0"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,154,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding ProtectionPlot.Axes[0].AbsoluteMinimum}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                    <Label Content="Absolute Max (s)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,175,0,0"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,179,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding ProtectionPlot.Axes[1].AbsoluteMaximum}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                    <Label Content="Absolute Min (s)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,200,0,0"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,204,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding ProtectionPlot.Axes[1].AbsoluteMinimum}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                </Grid>
+            </Expander>
+            <Expander x:Name="expander" HorizontalAlignment="Right" ExpandDirection="Left" DockPanel.Dock="Right" IsExpanded="True" >
+                <Expander.Header>
+                    <TextBlock Text="Curve Details">
+                        <TextBlock.LayoutTransform>
+                            <RotateTransform Angle="90"/>
+                        </TextBlock.LayoutTransform>
+                    </TextBlock>
+                </Expander.Header>
+                <Grid Background="#FFE5E5E5" Width="260">
+                    <DockPanel LastChildFill="True">
+                        <StackPanel DockPanel.Dock="Top" DataContext="{Binding SelectedItem, ElementName=listBox}" Height="350">
+                            <Grid>
+                                <Label Content="Name" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                                <TextBox HorizontalAlignment="Left" Margin="76,4,0,0" VerticalAlignment="Top" Width="139" Height="20" Text="{Binding CurveObject.Name}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                                <Button Margin="0,0,20,2" HorizontalAlignment="Right" Width="20" Height="20" VerticalAlignment="Bottom" Background="{Binding CurveObject.Color, Converter={StaticResource OxyToBrushConverter}}" Command="{Binding DataContext.SelectColor, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding }" />
+                            </Grid>
+                            <Grid>
+                                <Label Content="Curve:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                                <ComboBox  HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" ItemsSource="{Binding Source={StaticResource dataFromEnumCurve}}" SelectedItem="{Binding Path=CurveType}" />
+                            </Grid>
+                            <Grid>
+                                <Label Content="Voltage:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                                <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding CurveObject.Voltage}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                            </Grid>
+                            <ContentControl Content="{Binding CurveObject}" />
+                            <Grid>
+                                <Label Content="Temp Mult:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                                <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="40" Height="20" Text="{Binding CurveObject.TempMultiplier}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                                <Button Margin="121,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="1.0" Command="{Binding CurveObject.SetTempMultiplier}" CommandParameter="1.0" />
+                                <Button Margin="151,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="0.5" Command="{Binding CurveObject.SetTempMultiplier}" CommandParameter="0.5" />
+                                <Button Margin="181,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="1.16" Command="{Binding CurveObject.SetTempMultiplier}" CommandParameter="1.16" />
+                                <Button Margin="211,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="0.58" Command="{Binding CurveObject.SetTempMultiplier}" CommandParameter="0.58" />
+                            </Grid>
+
+                            <Grid>
+                                <CheckBox Content="Hidden" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="89" Height="20" IsChecked="{Binding CurveObject.Hidden}"  />
+                            </Grid>
+
+                            <Grid>
+                                <CheckBox Content="Show curve type after name" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="180" Height="20" IsChecked="{Binding CurveObject.AppendCurveTypeToDisplayName}" />
+                            </Grid>
+                        </StackPanel>
+                        <ListBox x:Name="listBox" Margin="0,4,0,0" ItemsSource="{Binding Curves}" HorizontalContentAlignment="Stretch">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderThickness="2" BorderBrush="{Binding CurveObject.DisplayColor, Converter={StaticResource OxyToBrushConverter}}">
+                                        <Grid Background="{Binding CurveObject.DisplayColor, Converter={StaticResource OxyToBrushConverterFaded}}" HorizontalAlignment="Stretch">
+                                            <TextBlock Text="{Binding CurveObject.Description}" FontSize="16"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.Resources>
+                                <ContextMenu x:Key="ItemContextMenu">
+                                    <MenuItem Header="Duplicate" Command="{Binding DataContext.DuplicateCurve, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}" />
+                                    <MenuItem Header="Delete" Command="{Binding DataContext.DeleteCurve, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}" />
+                                    <MenuItem Header="Hidden" IsCheckable="True" IsChecked="{Binding CurveObject.Hidden}"/>
+                                </ContextMenu>
+                            </ListBox.Resources>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListBoxItem}" >
+                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                    </DockPanel>
+                </Grid>
+            </Expander>
+            <oxy:PlotView Model="{Binding ProtectionPlot}" x:Name="plotView" />
+        </DockPanel>
+    </Grid>
+</Window>

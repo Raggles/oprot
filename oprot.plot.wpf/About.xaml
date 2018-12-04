@@ -1,0 +1,13 @@
+﻿<Window x:Class="oprot.plot.wpf.About"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:oprot.plot.wpf"
+        mc:Ignorable="d"
+        Title="About" Height="338.249" Width="565.785" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <TextBlock TextWrapping="Wrap" Margin="10"><Run Text="This tool is for academic use only, no gaurantees are made of accuracy or suitablility."/><LineBreak/><LineBreak/><Run Text="Notes:"/><LineBreak/><Run Text="A trip time of 0.01s is used to represent 0 (as 0 cannot be represented on a log scale.)"/><LineBreak/><Run Text="10"/><Run Text="e5"/><Run Text="s is the hardcoded maximum trip time."/><LineBreak/><Run/><LineBreak/><Run Text="Performance of the graph drawing is affected by both the number of samples, number of curves, and whether or the discrimination margin is drawn.  By reducing the number of samples and restricting the minimum and maximum current ranges the performance can be improved."/><LineBreak/><LineBreak/><Run Text="How to use:"/><LineBreak/><Run Text="To pan: right click and drag"/><LineBreak/><Run Text="To zoom: scroll wheel"/><LineBreak/><Run Text="To zoom to extents: Double mouse wheel click"/><LineBreak/><Run Text="To zoom to a window: Mouse wheel click and drag"/><LineBreak/><Run Text="To see values on the curve: left click and drag"/><LineBreak/></TextBlock>
+
+    </Grid>
+</Window>

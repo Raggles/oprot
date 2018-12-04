@@ -1,0 +1,49 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:oprot.database.viewer"
+        xmlns:core="clr-namespace:oprot.database.core;assembly=oprot.database.core" x:Class="oprot.database.viewer.MainWindow"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="638.635" Width="1077.653" Loaded="Window_Loaded">
+    <Window.Resources>
+        <CollectionViewSource x:Key="protectedPlantViewSource" d:DesignSource="{d:DesignInstance {x:Type core:ProtectedPlant}, CreateList=True}"/>
+        <CollectionViewSource x:Key="protectedPlantProtectionRelaysViewSource" Source="{Binding ProtectionRelays, Source={StaticResource protectedPlantViewSource}}"/>
+        <CollectionViewSource x:Key="protectedPlantProtectionRelaysProtectionElementsViewSource" Source="{Binding ProtectionElements, Source={StaticResource protectedPlantProtectionRelaysViewSource}}"/>
+    </Window.Resources>
+    <Grid DataContext="{StaticResource protectedPlantViewSource}">
+        <DataGrid x:Name="protectedPlantDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" ItemsSource="{Binding}" Margin="0,0,482,0" RowDetailsVisibilityMode="VisibleWhenSelected">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="plantIdColumn" Binding="{Binding PlantId}" Header="Plant Id" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="protectedPlantIdColumn" Binding="{Binding ProtectedPlantId}" Header="Protected Plant Id" Width="SizeToHeader"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <DataGrid x:Name="protectionRelaysDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" ItemsSource="{Binding Source={StaticResource protectedPlantProtectionRelaysViewSource}}" Margin="588,0,0,488" RowDetailsVisibilityMode="VisibleWhenSelected">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="assetNumberColumn" Binding="{Binding AssetNumber}" Header="Asset Number" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="protColumn" Binding="{Binding Prot}" Header="Prot" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="protectedPlantIdColumn1" Binding="{Binding ProtectedPlantId}" Header="Protected Plant Id" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="protectionRelayIdColumn" Binding="{Binding ProtectionRelayId}" Header="Protection Relay Id" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="relayModelColumn" Binding="{Binding RelayModel}" Header="Relay Model" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="settingsLocationColumn" Binding="{Binding SettingsLocation}" Header="Settings Location" Width="SizeToHeader"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <DataGrid x:Name="protectionElementsDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" ItemsSource="{Binding Source={StaticResource protectedPlantProtectionRelaysProtectionElementsViewSource}}" Margin="588,125,0,0" RowDetailsVisibilityMode="VisibleWhenSelected">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="aNSINameColumn" Binding="{Binding ANSIName}" Header="ANSIName" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="curveColumn" Binding="{Binding Curve}" Header="Curve" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="deadTime1Column" Binding="{Binding DeadTime1}" Header="Dead Time 1" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="deadTime2Column" Binding="{Binding DeadTime2}" Header="Dead Time 2" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="deadTime3Column" Binding="{Binding DeadTime3}" Header="Dead Time 3" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="defTColumn" Binding="{Binding DefT}" Header="Def T" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="idColumn" Binding="{Binding Id}" Header="Id" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="pickupColumn" Binding="{Binding Pickup}" Header="Pickup" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="protectionRelayIdColumn1" Binding="{Binding ProtectionRelayId}" Header="Protection Relay Id" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="reclaimTimeColumn" Binding="{Binding ReclaimTime}" Header="Reclaim Time" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="tMSColumn" Binding="{Binding TMS}" Header="TMS" Width="SizeToHeader"/>
+                <DataGridTextColumn x:Name="tripsToLockoutColumn" Binding="{Binding TripsToLockout}" Header="Trips To Lockout" Width="SizeToHeader"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
