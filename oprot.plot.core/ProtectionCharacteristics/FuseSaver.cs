@@ -15,7 +15,7 @@ namespace oprot.plot.core
 
     public class FuseSaver : ProtectionCharacteristic
     {
-        private Fuse _fuseobject;
+        private FuseDualCharacteristic _fuseobject;
         private FuseSaverFuse _fuseenum = FuseSaverFuse.SandCPositrolFuseTypeT;
         private double _hiSet = double.PositiveInfinity;
         private double _maxTripTime = 2.0;
@@ -23,7 +23,7 @@ namespace oprot.plot.core
         private double _maxTripTimeHardLimit = 1e6;
         private double _minTripHardLimit = 0.01;
 
-        public Fuse Fuse
+        public FuseDualCharacteristic Fuse
         {
             get { return _fuseobject; }
             set
@@ -80,6 +80,7 @@ namespace oprot.plot.core
         private void _fuseobject_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             RaisePropertyChanged(nameof(Fuse));
+            RaisePropertyChanged(nameof(Description));
             UpdateGraphElement();
         }
 
@@ -104,6 +105,7 @@ namespace oprot.plot.core
                 }
                 _fuseenum = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged(nameof(Description));
                 //Fuse will update the curve
             }
         }
@@ -112,7 +114,7 @@ namespace oprot.plot.core
         {
             get
             {
-                string r = _fuseobject.Rating.TrimEnd(new char[] { 'T', 'K' });
+                string r = _fuseobject.FuseSize.TrimEnd(new char[] { 'T', 'K' });
                 return double.Parse(r);
             }
         }
@@ -138,7 +140,7 @@ namespace oprot.plot.core
             if (g is FuseSaver g2)
             {
                 _fuseenum = g2.FuseType;
-                _fuseobject = g2.Fuse.Clone() as Fuse;
+                _fuseobject = g2.Fuse.Clone() as FuseDualCharacteristic;
                 
                 _hiSet = g2.HiSetMul;
                 _maxTripTime = g2.MaxTripTime;
@@ -150,12 +152,15 @@ namespace oprot.plot.core
 
         public override double Curve(double d)
         {
+            if (!_i2tDict.ContainsKey(_fuseobject.FuseSize)){
+                return double.NaN;
+            }
             double p = Pickup;
             if (d >= p*_hiSet)
                 return 0.01;
             if (d < p * _minTripMultiplier)
                 return _maxTripTimeHardLimit;
-            double tripTime = 0.33 * _i2tDict[_fuseobject.Rating] / Math.Pow(d,2);
+            double tripTime = 0.33 * _i2tDict[_fuseobject.FuseSize] / Math.Pow(d,2);
             if (tripTime > _maxTripTime)
                 return _maxTripTime;
             if (tripTime > _maxTripTimeHardLimit)
@@ -207,6 +212,11 @@ namespace oprot.plot.core
                 RaisePropertyChanged(nameof(DiscriminationMargin));
                 UpdateGraphElement();
             }
+        }
+
+        public override string ToString()
+        {
+            return Fuse.ToString();
         }
 
         private Dictionary<string, double> _i2tDict = new Dictionary<string, double>() {

@@ -7,8 +7,8 @@ namespace oprot.plot.core
     {
         private Point[] _points;
         bool ascending = false;
-        private double _maxTimeHardLimit = 1e6;
-        private double _minTimeHardLimit = 0.01;
+        private readonly double _maxTimeHardLimit = 1e6;
+        private readonly double _minTimeHardLimit = 0.01;
         private bool _logMode = true;
 
         public DataInterpolator(Point[] points, bool log = true)

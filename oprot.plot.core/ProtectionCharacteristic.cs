@@ -1,5 +1,6 @@
 ﻿using MicroMvvm;
 using System;
+using System.Collections.Generic;
 
 namespace oprot.plot.core
 {
@@ -13,7 +14,12 @@ namespace oprot.plot.core
         /// </summary>
         /// <param name="d">Current</param>
         /// <returns></returns>
+        [Obsolete]
         public abstract double Curve(double d);
+
+        public List<string> CurveNames { get; }
+        public double Curve(double d, int index) { return double.NaN; }
+        public double Curve(double d, string name) { return double.NaN; }
 
         public override string ToString()
         {

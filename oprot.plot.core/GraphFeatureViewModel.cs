@@ -10,8 +10,8 @@ namespace oprot.plot.core
 {
     public class GraphFeatureViewModel:ObservableObject
     {
-        public event Action CurveChanged;
-        public event Action CurveInvalidated;
+        public event Action CurveChanged;//create new graph element
+        public event Action CurveInvalidated;//force update on existing graph element
 
         private GraphFeatureKind _curveType = GraphFeatureKind.IECStandardInverse;
         private GraphFeature _curveObject;
@@ -98,10 +98,12 @@ namespace oprot.plot.core
                 case GraphFeatureKind.TripSaver:
                     _curveObject = new TripSaver(_curveObject);
                     break;
+                case GraphFeatureKind.NHgGFuse690V:
+                    _curveObject = new NHFuse(_curveObject);
+                    break;
                 case GraphFeatureKind.FaultLevelAnnotation:
                     _curveObject = new FaultLevelAnnotation(_curveObject);
                     break;
-
             }
             _curveObject.PropertyChanged += _curveObject_PropertyChanged;
         }

@@ -40,6 +40,7 @@ namespace oprot.plot.core
             {
                 _tms = value;
                 RaisePropertyChanged(nameof(TMS));
+                RaisePropertyChanged(nameof(Description));
                 UpdateGraphElement();
             }
         }
@@ -54,6 +55,7 @@ namespace oprot.plot.core
             {
                 _pickup = value;
                 RaisePropertyChanged(nameof(Pickup));
+                RaisePropertyChanged(nameof(Description));
                 UpdateGraphElement();
             }
         }

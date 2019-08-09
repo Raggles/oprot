@@ -10,13 +10,13 @@ namespace oprot.plot.core
         MaximumClearingTime
     }
 
-    public class Fuse : ProtectionCharacteristic
+    public class FuseDualCharacteristic : ProtectionCharacteristic
     {
-        public List<string> FuseRatings { get; set; } = new List<string>();
+        public List<string> FuseSizes { get; set; } = new List<string>();
         private FuseCurveType _fusecurve;
         //possibly an ugly way of achieving this, but it works for now
         private Dictionary<string, Dictionary<FuseCurveType, DataInterpolator>> _mapping = new Dictionary<string, Dictionary<FuseCurveType, DataInterpolator>>();
-        private string _rating;
+        private string _fuseSize;
 
         public FuseCurveType FuseCurve
         {
@@ -32,16 +32,17 @@ namespace oprot.plot.core
             }
         }
 
-        public string Rating
+        public string FuseSize
         {
             get
             {
-                return _rating;
+                return _fuseSize;
             }
             set
             {
-                _rating = value;
-                RaisePropertyChanged(nameof(Rating));
+                _fuseSize = value;
+                RaisePropertyChanged(nameof(FuseSize));
+                RaisePropertyChanged(nameof(Description));
                 UpdateGraphElement();
             }
         }
@@ -62,7 +63,7 @@ namespace oprot.plot.core
             }
         }
 
-        public Fuse(string meltingFile, string clearingFile, GraphFeature g = null) : base(g)
+        public FuseDualCharacteristic(string meltingFile, string clearingFile, GraphFeature g = null) : base(g)
         {
             var melting = CustomCurveParser.ParseFile(meltingFile);
             var clearing = CustomCurveParser.ParseFile(clearingFile);
@@ -71,9 +72,9 @@ namespace oprot.plot.core
             foreach (var kvp in melting)
             {
                 _mapping.Add(kvp.Key, new Dictionary<FuseCurveType, DataInterpolator>() { { FuseCurveType.MinimumMeltingTime, new DataInterpolator(kvp.Value) }, { FuseCurveType.MaximumClearingTime, new DataInterpolator(clearing[kvp.Key]) } });
-                FuseRatings.Add(kvp.Key);
+                FuseSizes.Add(kvp.Key);
             }
-            Rating = FuseRatings[0];
+            FuseSize = FuseSizes[0];
         }
 
         public Func<double, double> GetCurve(string r, FuseCurveType t)
@@ -87,13 +88,12 @@ namespace oprot.plot.core
 
         public override double Curve(double d)
         {
-            return GetCurve(Rating, FuseCurve)(d);
+            return GetCurve(FuseSize, FuseCurve)(d);
         }
 
         public override string ToString()
         {
-            //var curvetype = FuseCurve == FuseCurveType.MaximumClearingTime ? "Tc" : "Tm";
-            return $" ({Rating})";//: {curvetype})";
+            return $" ({FuseSize})";
         }
 
         public override PlotElement GetPlotElement()

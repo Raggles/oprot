@@ -25,12 +25,13 @@ namespace oprot.plot.core
         ChanceFuseTypeT,
         FaultLevelAnnotation,
         FuseSaver,
-        TripSaver
+        TripSaver,
+        NHgGFuse690V,
     }
     public abstract class GraphFeature : ObservableObject
     {
         public static event EventHandler<PropertyChangedEventArgs> StaticPropertyChanged;
-        protected static void NotifyStaticPropertChanged([CallerMemberName] String propertyName = "")
+        protected static void NotifyStaticPropertyChanged([CallerMemberName] String propertyName = "")
         {
             StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(propertyName));
         }
@@ -61,7 +62,7 @@ namespace oprot.plot.core
             set
             {
                 _baseVoltage = value;
-                NotifyStaticPropertChanged();
+                NotifyStaticPropertyChanged();
                 UpdateAllCurves();
             }
         }
@@ -76,7 +77,7 @@ namespace oprot.plot.core
             {
                 _numberSamples = value;
                 UpdateAllCurves();
-                NotifyStaticPropertChanged();
+                NotifyStaticPropertyChanged();
             }
         }
 
@@ -90,7 +91,7 @@ namespace oprot.plot.core
             {
                 _maximumCurrent = value;
                 UpdateAllCurves();
-                NotifyStaticPropertChanged();
+                NotifyStaticPropertyChanged();
             }
         }
 
@@ -104,7 +105,7 @@ namespace oprot.plot.core
             {
                 _minimumCurrent = value;
                 UpdateAllCurves();
-                NotifyStaticPropertChanged();
+                NotifyStaticPropertyChanged();
             }
         }
 
@@ -116,7 +117,7 @@ namespace oprot.plot.core
         {
             get
             {
-                return string.Format("{0} ({1})", Name, GetType().ToString());
+                return $"{Name}{this}";
             }
         }
 
@@ -180,7 +181,7 @@ namespace oprot.plot.core
             Register(this);
         }
 
-        public GraphFeature(GraphFeature g)
+        public GraphFeature(GraphFeature g) : this()
         {
             if (g != null)
             {
@@ -262,7 +263,7 @@ namespace oprot.plot.core
             {
                 if (AppendCurveTypeToDisplayName)
                 {
-                    return Name + ToString();
+                    return Description;
                 }
                 else
                 {

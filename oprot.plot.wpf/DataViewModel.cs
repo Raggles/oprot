@@ -39,8 +39,7 @@ namespace oprot.plot.wpf
 
             foreach (var curve in Curves)
             {
-                var c = curve.CurveObject as ProtectionCharacteristic;
-                if (c == null)
+                if (!(curve.CurveObject is ProtectionCharacteristic c))
                     continue;
                 string name = c.Name.Replace(".", "") ;
                 int j = 2;

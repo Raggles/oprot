@@ -19,6 +19,7 @@ namespace oprot.plot.core
             {
                 _current = value;
                 RaisePropertyChanged(nameof(Current));
+                UpdateGraphElement();
             }
         }
 

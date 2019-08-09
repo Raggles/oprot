@@ -7,7 +7,7 @@ namespace oprot.plot.core
         private double _time = 10;
         private double _pickup = 100;
         private double _hiset = double.PositiveInfinity;
-        private double _maxTripTimeHardLimit = 1e6;
+        private readonly double _maxTripTimeHardLimit = 1e6;
 
         public double Time
         {
@@ -19,6 +19,7 @@ namespace oprot.plot.core
             {
                 _time = value;
                 RaisePropertyChanged(nameof(Time));
+                RaisePropertyChanged(nameof(Description));
                 UpdateGraphElement();
             }
         }
@@ -33,6 +34,7 @@ namespace oprot.plot.core
             {
                 _pickup = value;
                 RaisePropertyChanged(nameof(Pickup));
+                RaisePropertyChanged(nameof(Description));
                 UpdateGraphElement();
             }
         }
@@ -97,9 +99,11 @@ namespace oprot.plot.core
 
         public override PlotElement GetPlotElement()
         {
-            var s = new LogFunctionSeries(Curve, _minimumCurrent, _maximumCurrent, _numberSamples, DisplayName, DiscriminationMargin, _tempMultiplier * _baseVoltage / _voltage);
-            s.ShowDiscriminationMargin = ShowDiscriminationMargin;
-            s.Color = _color;
+            var s = new LogFunctionSeries(Curve, _minimumCurrent, _maximumCurrent, _numberSamples, DisplayName, DiscriminationMargin, _tempMultiplier * _baseVoltage / _voltage)
+            {
+                ShowDiscriminationMargin = ShowDiscriminationMargin,
+                Color = _color
+            };
             if (_tempMultiplier != 1.0)
                 s.LineStyle = LineStyle.Dash;
             return s;

@@ -26,6 +26,22 @@ namespace oprot.plot.wpf
             InitializeComponent();
         }
 
+        public MainWindow(string[] args)
+        {
+            InitializeComponent();
+
+            try
+            {
+                MainViewModel m = JsonConvert.DeserializeObject<MainViewModel>(File.ReadAllText(args[0]));
+                DataContext = m;
+                m.OnDeserialize();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
         private void btnAddCurve_Click(object sender, RoutedEventArgs e)
         {
             //TODO: this should be a command on the viewmodel
@@ -119,6 +135,13 @@ namespace oprot.plot.wpf
             double h = plotView.ActualHeight;
             var pngExporter = new PngExporter { Width = (int)w, Height = (int)h, Background = OxyColors.White };
             Clipboard.SetImage(pngExporter.ExportToBitmap(((MainViewModel)DataContext).ProtectionPlot));
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            Disclaimer d = new Disclaimer();
+            d.Owner = this;
+            d.ShowDialog();
         }
     }
 }

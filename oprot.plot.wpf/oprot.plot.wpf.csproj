@@ -7,7 +7,7 @@
     <ProjectGuid>{99408168-A4EF-48F1-9212-21A98A5E3BBD}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>protplot</RootNamespace>
+    <RootNamespace>oprot.plot.wpf</RootNamespace>
     <AssemblyName>protplot</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -136,6 +136,9 @@
     <Compile Include="DataWindow.xaml.cs">
       <DependentUpon>DataWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Disclaimer.xaml.cs">
+      <DependentUpon>Disclaimer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DocumentViewer2.cs" />
     <Compile Include="InputBindingManager.cs" />
     <Compile Include="OxyColorToBrushConverter.cs" />
@@ -151,6 +154,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="DataWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Disclaimer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -286,6 +293,11 @@
       <Project>{5c347de1-ec5f-4de3-91a4-e06eb462f91d}</Project>
       <Name>oprot.plot.core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Curves\Bussmann NH LV Fuse 690V.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

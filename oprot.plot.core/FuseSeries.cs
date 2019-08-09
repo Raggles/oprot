@@ -52,7 +52,7 @@ namespace oprot.plot.core
                 polyColour = polyColour.ChangeIntensity(4);
                 polyColour = polyColour.ChangeSaturation(0.25);
                 polyColour = OxyColor.FromAColor(127, polyColour);
-                rc.DrawClippedPolygon(clippingRect, polypoints, 0.1, polyColour, ActualColor, 0.2);
+                rc.DrawClippedPolygon(clippingRect, polypoints, 0.1, polyColour, ActualColor, 0.5);
             }
 
             this.RenderPoints(rc, clippingRect, actualPoints);
@@ -84,13 +84,13 @@ namespace oprot.plot.core
         /// <param name="x1">The end x value.</param>
         /// <param name="n">The number of points.</param>
         /// <param name="title">The title (optional).</param>
-        public FuseSeries(Fuse f, double x0, double x1, int n, string title = null, double scalingFactor = 1)
+        public FuseSeries(FuseDualCharacteristic f, double x0, double x1, int n, string title = null, double scalingFactor = 1)
         {
             List<DataPoint> maxClear = new List<DataPoint>();
             this.Title = title;
 
-            var f1 = f.GetCurve(f.Rating, FuseCurveType.MinimumMeltingTime);
-            var f2 = f.GetCurve(f.Rating, FuseCurveType.MaximumClearingTime);
+            var f1 = f.GetCurve(f.FuseSize, FuseCurveType.MinimumMeltingTime);
+            var f2 = f.GetCurve(f.FuseSize, FuseCurveType.MaximumClearingTime);
 
             if (x0 <= 0)
                 x0 = 0.01;
