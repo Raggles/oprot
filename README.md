@@ -1,9 +1,9 @@
-# protplot
+# oprot
 A tool for plotting protection curves
 
-![alt text](https://github.com/Raggles/protplot/raw/master/doc/PlotScreenshot.png "Example Plot")
+![alt text](https://github.com/Raggles/oprot/raw/master/doc/PlotScreenshot.png "Example Plot")
 
-![alt text](https://github.com/Raggles/protplot/raw/master/doc/DataScreenshot.png "Example Plot Data")
+![alt text](https://github.com/Raggles/oprot/raw/master/doc/DataScreenshot.png "Example Plot Data")
 
 Supported Curves:
  * IEC curves
@@ -20,4 +20,4 @@ Features:
  * Trip margin shading
  * Fault Level annotations
 
-The latest binaries can be downloaded from https://github.com/Raggles/protplot/releases
+The latest binaries can be downloaded from https://github.com/Raggles/oprot/releases
