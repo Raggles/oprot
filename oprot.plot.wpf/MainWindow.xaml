@@ -104,7 +104,7 @@
                 
             </StackPanel>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type ppcore:NHFuse}">
+        <DataTemplate DataType="{x:Type ppcore:FuseSingleCharacteristic}">
             <StackPanel>
                 <Grid>
                     <Label Content="Fuse Size:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>

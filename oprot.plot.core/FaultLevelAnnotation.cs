@@ -35,6 +35,7 @@ namespace oprot.plot.core
                 if (_plotElement != null)
                     ((LineAnnotation)_plotElement).Color = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged(nameof(DisplayColor));
                 RaiseGraphElementInvalidated();
             }
         }

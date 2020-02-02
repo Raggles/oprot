@@ -26,7 +26,11 @@ namespace oprot.plot.core
         FaultLevelAnnotation,
         FuseSaver,
         TripSaver,
+        HRCKnifeFuse,
+        HRCBoltedFuse,
+        HRCMJTypeFuse,
         NHgGFuse690V,
+        ABBCEF
     }
     public abstract class GraphFeature : ObservableObject
     {

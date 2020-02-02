@@ -65,6 +65,7 @@ namespace oprot.plot.core
                 if (_plotElement != null)
                     ((LogFunctionSeries)_plotElement).Color = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged(nameof(DisplayColor));
                 RaiseGraphElementInvalidated();
             }
         }

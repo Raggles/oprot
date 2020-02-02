@@ -101,6 +101,18 @@ namespace oprot.plot.core
                 case GraphFeatureKind.NHgGFuse690V:
                     _curveObject = new NHFuse(_curveObject);
                     break;
+                case GraphFeatureKind.HRCBoltedFuse:
+                    _curveObject = new HRCBoltedFuse(_curveObject);
+                    break;
+                case GraphFeatureKind.HRCKnifeFuse:
+                    _curveObject = new HRCKnifeFuse(_curveObject);
+                    break;
+                case GraphFeatureKind.HRCMJTypeFuse:
+                    _curveObject = new HRCMJ30Fuse(_curveObject);
+                    break;
+                case GraphFeatureKind.ABBCEF:
+                    _curveObject = new ABBCEFFuse(_curveObject);
+                    break;
                 case GraphFeatureKind.FaultLevelAnnotation:
                     _curveObject = new FaultLevelAnnotation(_curveObject);
                     break;

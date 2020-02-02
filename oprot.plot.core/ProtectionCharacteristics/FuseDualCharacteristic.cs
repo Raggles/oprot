@@ -59,6 +59,7 @@ namespace oprot.plot.core
                 if (_plotElement != null)
                     ((FuseSeries)_plotElement).Color = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged(nameof(DisplayColor));
                 RaiseGraphElementInvalidated();
             }
         }
