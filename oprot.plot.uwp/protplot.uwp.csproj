@@ -128,7 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.0.1</Version>
+      <Version>6.0.6</Version>
     </PackageReference>
     <PackageReference Include="OxyPlot.Core">
       <Version>2.0.0-unstable1013</Version>
