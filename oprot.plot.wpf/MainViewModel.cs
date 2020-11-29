@@ -77,7 +77,7 @@ namespace oprot.plot.wpf
             ProtectionPlot.Axes.Add(new LogarithmicAxis() { Position = AxisPosition.Left, Minimum = 0.01, Maximum = 100, MajorGridlineStyle = LineStyle.Solid, Title = "Time (s)", AbsoluteMaximum = 1e5, AbsoluteMinimum=0.1 });
         }
                 
-        public void AddNewCurve(GraphFeatureViewModel newCurve = null)
+        public void AddNewCurve(GraphFeatureViewModel newCurve = null, int position = -1)
         {
             if (newCurve == null)
                 newCurve = new GraphFeatureViewModel();
@@ -86,6 +86,11 @@ namespace oprot.plot.wpf
             newCurve.CurveChanged += Redraw;
             newCurve.CurveInvalidated += CurveInvalidated;
             Curves.Add(newCurve);
+            if (position >= 0 && position < Curves.Count - 1)
+            {
+                Curves.Move(Curves.Count - 1, position);
+            }
+            
             if (newCurve.CurveObject.GraphElement is Annotation)
             {
                 ProtectionPlot.Annotations.Add(newCurve.CurveObject.GraphElement as Annotation);
@@ -125,6 +130,9 @@ namespace oprot.plot.wpf
             ProtectionPlot.InvalidatePlot(false);
         }
 
+        #region Commands
+
+        #region Delete Curve Command
         void DeleteCurveExecute(GraphFeatureViewModel c)
         {
             try
@@ -145,7 +153,9 @@ namespace oprot.plot.wpf
 
         [JsonIgnore]
         public ICommand DeleteCurve { get { return new MicroMvvm.RelayCommand<GraphFeatureViewModel>(DeleteCurveExecute, CanDeleteCurveExecute); } }
+        #endregion
 
+        #region Duplicate Curve Command
         void DuplicateCurveExecute(GraphFeatureViewModel c)
         {
             try
@@ -167,7 +177,9 @@ namespace oprot.plot.wpf
 
         [JsonIgnore]
         public ICommand DuplicateCurve { get { return new MicroMvvm.RelayCommand<GraphFeatureViewModel>(DuplicateCurveExecute, CanDuplicateCurveExecute); } }
+        #endregion
 
+        #region Select Color Command
         void SelectColorExecute(GraphFeatureViewModel c)
         {
             if (c == null)
@@ -195,8 +207,150 @@ namespace oprot.plot.wpf
 
         [JsonIgnore]
         public ICommand SelectColor { get { return new MicroMvvm.RelayCommand<GraphFeatureViewModel>(SelectColorExecute, CanSelectColorExecute); } }
+        #endregion
 
+        #region Move Curve Up Command
+        void MoveCurveUpExecute(GraphFeatureViewModel c)
+        {
+            try
+            {
+                int i = Curves.IndexOf(c);
+                if (i > 0)
+                    Curves.Move(i, i - 1);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
 
+        bool CanMoveCurveUpExecute(GraphFeatureViewModel c)
+        {
+            return c != null;
+        }
+
+        [JsonIgnore]
+        public ICommand MoveCurveUp { get { return new MicroMvvm.RelayCommand<GraphFeatureViewModel>(MoveCurveUpExecute, CanMoveCurveUpExecute); } }
+        #endregion
+
+        #region Move Curve Down Command
+        void MoveCurveDownExecute(GraphFeatureViewModel c)
+        {
+            try
+            {
+                int i = Curves.IndexOf(c);
+                if (i < Curves.Count -1)
+                    Curves.Move(i, i + 1);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        bool CanMoveCurveDownExecute(GraphFeatureViewModel c)
+        {
+            return c != null;
+        }
+
+        [JsonIgnore]
+        public ICommand MoveCurveDown { get { return new MicroMvvm.RelayCommand<GraphFeatureViewModel>(MoveCurveDownExecute, CanMoveCurveDownExecute); } }
+        #endregion
+
+        #region Copy Curve Json Command
+        void CopyCurveJsonExecute(GraphFeatureViewModel c)
+        {
+            try
+            {
+                var jsonSerializerSettings = new JsonSerializerSettings()
+                {
+                    TypeNameHandling = TypeNameHandling.All,
+                    Formatting = Newtonsoft.Json.Formatting.Indented
+
+                };
+                var json = JsonConvert.SerializeObject(c, jsonSerializerSettings);
+                Clipboard.SetText(json);               
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        bool CanCopyCurveJsonExecute(GraphFeatureViewModel c)
+        {
+            return c != null;
+        }
+
+        [JsonIgnore]
+        public ICommand CopyCurveJson { get { return new MicroMvvm.RelayCommand<GraphFeatureViewModel>(CopyCurveJsonExecute, CanCopyCurveJsonExecute); } }
+        #endregion
+
+        #region Copy Curve Base64 Command
+        void CopyCurveBase64Execute(GraphFeatureViewModel c)
+        {
+            try
+            {
+                var jsonSerializerSettings = new JsonSerializerSettings()
+                {
+                    TypeNameHandling = TypeNameHandling.All,
+                    Formatting = Newtonsoft.Json.Formatting.Indented
+
+                };
+                var json = JsonConvert.SerializeObject(c, jsonSerializerSettings);
+                var b64 =  System.Convert.ToBase64String(Util.Zip(json));
+                Clipboard.SetText(b64);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        bool CanCopyCurveBase64Execute(GraphFeatureViewModel c)
+        {
+            return c != null;
+        }
+
+        [JsonIgnore]
+        public ICommand CopyCurveBase64 { get { return new MicroMvvm.RelayCommand<GraphFeatureViewModel>(CopyCurveBase64Execute, CanCopyCurveBase64Execute); } }
+        #endregion
+
+        #region Paste Curve Command
+        void PasteCurveExecute(GraphFeatureViewModel c)
+        {
+            try
+            {
+                string s = Clipboard.GetText();
+                GraphFeatureViewModel o;
+                if (s[0] == '{')
+                {
+                    o = JsonConvert.DeserializeObject<GraphFeatureViewModel>(s);
+                }
+                else
+                {
+                    var base64EncodedBytes = System.Convert.FromBase64String(s);
+                    string s2 = Util.Unzip(base64EncodedBytes);
+                    o = JsonConvert.DeserializeObject<GraphFeatureViewModel>(s2);
+                }
+                AddNewCurve(o, Curves.IndexOf(c) + 1);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        bool CanPasteCurveExecute(GraphFeatureViewModel c)
+        {
+            return c != null;
+        }
+
+        [JsonIgnore]
+        public ICommand PasteCurve { get { return new MicroMvvm.RelayCommand<GraphFeatureViewModel>(PasteCurveExecute, CanPasteCurveExecute); } }
+        #endregion
+
+        #endregion
         public void OnDeserialize()
         {
             foreach(var curve in Curves)

@@ -319,10 +319,16 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                             <ListBox.Resources>
-                                <ContextMenu x:Key="ItemContextMenu">
+                                <ContextMenu x:Key="ItemContextMenu" >
                                     <MenuItem Header="Duplicate" Command="{Binding DataContext.DuplicateCurve, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}" />
                                     <MenuItem Header="Delete" Command="{Binding DataContext.DeleteCurve, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}" />
                                     <MenuItem Header="Hidden" IsCheckable="True" IsChecked="{Binding CurveObject.Hidden}"/>
+                                    <MenuItem Header="Move Up" Command="{Binding DataContext.MoveCurveUp, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}"/>
+                                    <MenuItem Header="Move Down" Command="{Binding DataContext.MoveCurveDown, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}"/>
+                                    <MenuItem Header="Copy (JSON)" Command="{Binding DataContext.CopyCurveJson, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}"/>
+                                    <MenuItem Header="Copy (B64)" Command="{Binding DataContext.CopyCurveBase64, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}"/>
+                                    <MenuItem Header="Paste" Command="{Binding DataContext.PasteCurve, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}"/>
+                                    
                                 </ContextMenu>
                             </ListBox.Resources>
                             <ListBox.ItemContainerStyle>
