@@ -17,6 +17,7 @@ namespace oprot.plot.core
         [Obsolete]
         public abstract double Curve(double d);
 
+        //TODO: I've forgotten what this code was intended for???  maybe melting and clearing?? or fusesaver & fuse
         public List<string> CurveNames { get; }
         public double Curve(double d, int index) { return double.NaN; }
         public double Curve(double d, string name) { return double.NaN; }
