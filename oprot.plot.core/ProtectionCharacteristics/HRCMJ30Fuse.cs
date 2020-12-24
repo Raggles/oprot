@@ -6,11 +6,11 @@ namespace oprot.plot.core
 {
     public class HRCMJ30Fuse : FuseSingleCharacteristic
     {
-        public HRCMJ30Fuse(GraphFeature g = null) : base(@".\Curves\HRC MJ30.txt", g) { }
+        public HRCMJ30Fuse() : base(@".\Curves\HRC MJ30.txt") { }
 
         public override string ToString()
         {
-            return $" (Bussmann gU {FuseSize})";
+            return $"Bussmann gU {FuseSize}";
         }
     }
 }

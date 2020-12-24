@@ -13,7 +13,7 @@ namespace oprot.plot.core
         ChanceFuseTypeT
     }
 
-    public class FuseSaver : ProtectionCharacteristic
+    public class FuseSaver : FixedMarginCharacteristic
     {
         private FuseDualCharacteristic _fuseobject;
         private FuseSaverFuse _fuseenum = FuseSaverFuse.SandCPositrolFuseTypeT;
@@ -23,66 +23,16 @@ namespace oprot.plot.core
         private double _maxTripTimeHardLimit = 1e6;
         private double _minTripHardLimit = 0.01;
 
-        public FuseDualCharacteristic Fuse
-        {
-            get { return _fuseobject; }
-            set
-            {
-                _fuseobject = value;
-                _fuseobject.PropertyChanged += _fuseobject_PropertyChanged;
-                RaisePropertyChanged();
-                UpdateGraphElement();
-            }
-        }
+        public FuseDualCharacteristic Fuse { get; set; }
+        
+        public double MaxTripTime { get; set; }
+      
 
-        public double MaxTripTime
-        {
-            get
-            {
-                return _maxTripTime;
-            }
-            set
-            {
-                _maxTripTime = value;
-                RaisePropertyChanged(nameof(MaxTripTime));
-                UpdateGraphElement();
-            }
-        }
+        public double HiSetMul { get; set; }
+       
 
-        public double HiSetMul
-        {
-            get
-            {
-                return _hiSet;
-            }
-            set
-            {
-                _hiSet = value;
-                RaisePropertyChanged();
-                UpdateGraphElement();
-            }
-        }
+        public double MinTripMultiplier { get; set; }
 
-        public double MinTripMultiplier
-        {
-            get
-            {
-                return _minTripMultiplier;
-            }
-            set
-            {
-                _minTripMultiplier = value;
-                RaisePropertyChanged();
-                UpdateGraphElement();
-            }
-        }
-
-        private void _fuseobject_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            RaisePropertyChanged(nameof(Fuse));
-            RaisePropertyChanged(nameof(Description));
-            UpdateGraphElement();
-        }
 
         public FuseSaverFuse FuseType {
             get { return _fuseenum; }
@@ -104,9 +54,6 @@ namespace oprot.plot.core
                         break;
                 }
                 _fuseenum = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(Description));
-                //Fuse will update the curve
             }
         }
 
@@ -119,25 +66,9 @@ namespace oprot.plot.core
             }
         }
 
-        public override OxyColor Color
+        protected override void PretendCopyConstructor(GraphableFeature g)
         {
-            get
-            {
-                return _plotElement == null ? _color : ((LogFunctionSeries)_plotElement).ActualColor;
-            }
-            set
-            {
-                _color = value;
-                if (_plotElement != null)
-                    ((LogFunctionSeries)_plotElement).Color = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(DisplayColor));
-                RaiseGraphElementInvalidated();
-            }
-        }
-
-        public FuseSaver(GraphFeature g = null) : base(g)
-        {
+            base.PretendCopyConstructor(g);
             if (g is FuseSaver g2)
             {
                 _fuseenum = g2.FuseType;
@@ -171,50 +102,7 @@ namespace oprot.plot.core
             return tripTime;
         }
 
-        public override PlotElement GetPlotElement()
-        {
-            var s = new LogFunctionSeries(Curve, _minimumCurrent, _maximumCurrent, _numberSamples, DisplayName, DiscriminationMargin, _tempMultiplier * _baseVoltage / _voltage);
-            s.ShowDiscriminationMargin = ShowDiscriminationMargin;
-            s.Color = _color;
-            if (_tempMultiplier != 1.0)
-                s.LineStyle = LineStyle.Dash;
-            return s;
-        }
-
-        private bool _showDiscriminationMargin = true;
-        private double _discriminationMargin = 0.2;
-
-        public bool ShowDiscriminationMargin
-        {
-            get
-            {
-                return _showDiscriminationMargin;
-            }
-            set
-            {
-                _showDiscriminationMargin = value;
-                ((LogFunctionSeries)_plotElement).ShowDiscriminationMargin = value;
-                RaiseGraphElementInvalidated();
-                RaisePropertyChanged(nameof(ShowDiscriminationMargin));
-            }
-        }
-
-        public double DiscriminationMargin
-        {
-            get
-            {
-                return _discriminationMargin;
-            }
-            set
-            {
-                if (value < 0.01 || value > 1)
-                    return;
-                _discriminationMargin = value;
-                RaisePropertyChanged(nameof(DiscriminationMargin));
-                UpdateGraphElement();
-            }
-        }
-
+        
         public override string ToString()
         {
             return Fuse.ToString();

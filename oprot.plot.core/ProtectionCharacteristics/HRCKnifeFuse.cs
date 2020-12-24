@@ -6,11 +6,11 @@ namespace oprot.plot.core
 {
     public class HRCKnifeFuse : FuseSingleCharacteristic
     {
-        public HRCKnifeFuse(GraphFeature g = null) : base(@".\Curves\HRC Knife.txt", g) { }
+        public HRCKnifeFuse() : base(@".\Curves\HRC Knife.txt") { }
 
         public override string ToString()
         {
-            return $" (Bussmann gG {FuseSize})";
+            return $"Bussmann gG {FuseSize}";
         }
     }
 }

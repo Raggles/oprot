@@ -1,5 +1,6 @@
 ﻿using MicroMvvm;
 using Newtonsoft.Json;
+using OxyPlot;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,53 +9,60 @@ using System.Text;
 
 namespace oprot.plot.core
 {
-    public abstract class ProtectionCharacteristic: GraphFeature
+    public abstract class ProtectionCharacteristic : GraphableFeature
     {
-        public ProtectionCharacteristic() : base() { }
-        public ProtectionCharacteristic(GraphFeature g) : base(g) { }
+        public double MaximumFaultLevel { get; set; } = double.PositiveInfinity;
 
         /// <summary>
         /// The equation for the curve as a function of current
         /// </summary>
         /// <param name="d">Current</param>
         /// <returns></returns>
-        [Obsolete]
         public abstract double Curve(double d);
-
-        //TODO: I've forgotten what this code was intended for???  maybe melting and clearing?? or fusesaver & fuse
-        public List<string> CurveNames { get; }
-        public double Curve(double d, int index) { return double.NaN; }
-        public double Curve(double d, string name) { return double.NaN; }
-
-        public override string ToString()
-        {
-            return "";
-        }
-
-        public string SerializeJson()
-        {
-            var jsonSerializerSettings = new JsonSerializerSettings()
-            {
-                TypeNameHandling = TypeNameHandling.All,
-                Formatting = Newtonsoft.Json.Formatting.Indented
-
-            };
-            return JsonConvert.SerializeObject(this, jsonSerializerSettings);
-        }
-
-        public string SerializeBase64()
-        {
-            var jsonSerializerSettings = new JsonSerializerSettings()
-            {
-                TypeNameHandling = TypeNameHandling.All,
-                Formatting = Newtonsoft.Json.Formatting.Indented
-
-            };
-            var json = JsonConvert.SerializeObject(this, jsonSerializerSettings);
-            return System.Convert.ToBase64String(Util.Zip(json));
-
-        }
-        //public abstract double MaximumMargin(double d);
-        //public abstract double MinimumMargin(double d);
+        public abstract double LowerMargin(double d);
+        public abstract double UpperMargin(double d); 
     }
+
+    public abstract class FixedMarginCharacteristic : ProtectionCharacteristic 
+    {
+        private double _discriminationMargin = 0.2;
+
+        public double DiscriminationMargin
+        {
+            get
+            {
+                return _discriminationMargin;
+            }
+            set
+            {
+                if (value < 0.01 || value > 1)
+                    return;
+                _discriminationMargin = value;
+                RaiseFeatureChanged();
+            }
+        }
+
+        public bool ShowDiscriminationMargin { get; set; }
+
+        public override double LowerMargin(double d)
+        {
+            return Math.Max(Curve(d) - DiscriminationMargin, 0);
+        }
+
+        public override double UpperMargin(double d)
+        {
+            return Curve(d) + DiscriminationMargin;
+        }
+
+        protected override PlotElement GetPlotElement()
+        {
+            var s = new LogFunctionSeries(Curve, PlotParameters.MinimumCurrent, PlotParameters.MaximumCurrent, PlotParameters.NumberOfSamples, DisplayName, DiscriminationMargin, TempMultiplier * PlotParameters.BaseVoltage / Voltage);
+            s.ShowDiscriminationMargin = ShowDiscriminationMargin;
+            s.Color = this.Color;
+            if (TempMultiplier != 1.0)
+                s.LineStyle = LineStyle.Dash;
+            return s;
+        }
+    }
+
 }

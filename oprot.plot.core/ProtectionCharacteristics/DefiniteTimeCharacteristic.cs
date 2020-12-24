@@ -1,14 +1,16 @@
 ﻿using OxyPlot;
+using PropertyChanged;
 
 namespace oprot.plot.core
 {
-    public class DefiniteTimeCharacteristic : ProtectionCharacteristic
+    public class DefiniteTimeCharacteristic : FixedMarginCharacteristic
     {
         private double _time = 10;
         private double _pickup = 100;
         private double _hiset = double.PositiveInfinity;
         private readonly double _maxTripTimeHardLimit = 1e6;
 
+        [AlsoNotifyFor(nameof(Description))]
         public double Time
         {
             get
@@ -18,12 +20,11 @@ namespace oprot.plot.core
             set
             {
                 _time = value;
-                RaisePropertyChanged(nameof(Time));
-                RaisePropertyChanged(nameof(Description));
-                UpdateGraphElement();
+                RaiseFeatureChanged();
             }
         }
 
+        [AlsoNotifyFor(nameof(Description))]
         public double Pickup
         {
             get
@@ -33,11 +34,11 @@ namespace oprot.plot.core
             set
             {
                 _pickup = value;
-                RaisePropertyChanged(nameof(Pickup));
-                RaisePropertyChanged(nameof(Description));
-                UpdateGraphElement();
+                RaiseFeatureChanged();
             }
         }
+
+        [AlsoNotifyFor(nameof(Description))]
 
         public double HiSetPickup
         {
@@ -49,35 +50,19 @@ namespace oprot.plot.core
             {
                 _hiset = value;
                 RaisePropertyChanged(nameof(HiSetPickup));
-                UpdateGraphElement();
+                RaiseFeatureChanged();
             }
         }
 
-        public override OxyColor Color
+    
+        protected override void PretendCopyConstructor(GraphableFeature f)
         {
-            get
+            base.PretendCopyConstructor(f);
+            if (f is DefiniteTimeCharacteristic f2)
             {
-                return _plotElement == null ? _color : ((LogFunctionSeries)_plotElement).ActualColor;
-            }
-            set
-            {
-                _color = value;
-                if (_plotElement != null)
-                    ((LogFunctionSeries)_plotElement).Color = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(DisplayColor));
-                RaiseGraphElementInvalidated();
-            }
-        }
-
-        public DefiniteTimeCharacteristic() : base() { }
-        public DefiniteTimeCharacteristic(GraphFeature g) : base(g)
-        {
-            if (g is DefiniteTimeCharacteristic g2)
-            {
-                _time = g2.Time;
-                _pickup = g2.Pickup;
-                _hiset = g2.HiSetPickup;
+                _time = f2.Time;
+                _pickup = f2.Pickup;
+                _hiset = f2.HiSetPickup;
             }
         }
         
@@ -95,53 +80,21 @@ namespace oprot.plot.core
 
         public override string ToString()
         {
-            return $" ({Pickup}A@{Time} DT)";
+            return $"{Pickup}A@{Time} DT";
         }
 
-        public override PlotElement GetPlotElement()
+        
+        protected override PlotElement GetPlotElement()
         {
-            var s = new LogFunctionSeries(Curve, _minimumCurrent, _maximumCurrent, _numberSamples, DisplayName, DiscriminationMargin, _tempMultiplier * _baseVoltage / _voltage)
+            var s = new LogFunctionSeries(Curve, PlotParameters.MinimumCurrent, PlotParameters.MaximumCurrent, PlotParameters.NumberOfSamples, DisplayName, DiscriminationMargin, TempMultiplier * PlotParameters.BaseVoltage / Voltage)
             {
                 ShowDiscriminationMargin = ShowDiscriminationMargin,
-                Color = _color
+                Color = this.Color
             };
-            if (_tempMultiplier != 1.0)
+            if (TempMultiplier != 1.0)
                 s.LineStyle = LineStyle.Dash;
             return s;
         }
 
-        private bool _showDiscriminationMargin = true;
-        private double _discriminationMargin = 0.2;
-
-        public bool ShowDiscriminationMargin
-        {
-            get
-            {
-                return _showDiscriminationMargin;
-            }
-            set
-            {
-                _showDiscriminationMargin = value;
-                ((LogFunctionSeries)_plotElement).ShowDiscriminationMargin = value;
-                RaiseGraphElementInvalidated();
-                RaisePropertyChanged(nameof(ShowDiscriminationMargin));
-            }
-        }
-
-        public double DiscriminationMargin
-        {
-            get
-            {
-                return _discriminationMargin;
-            }
-            set
-            {
-                if (value < 0.01 || value > 1)
-                    return;
-                _discriminationMargin = value;
-                RaisePropertyChanged(nameof(DiscriminationMargin));
-                UpdateGraphElement();
-            }
-        }
     }
 }

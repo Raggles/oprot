@@ -18,7 +18,7 @@ namespace oprot.plot.core
         _100T
     }
 
-    public class TripSaver : ProtectionCharacteristic
+    public class TripSaver : FixedMarginCharacteristic
     {
         private TripSaverFuse _fuseenum;
         private double _hiSet = double.PositiveInfinity;
@@ -27,59 +27,14 @@ namespace oprot.plot.core
         private double _maxTripTimeHardLimit = 1e6;
         private double _minTripHardLimit = 0.01;
 
-        public TripSaverFuse Fuse
-        {
-            get { return _fuseenum; }
-            set
-            {
-                _fuseenum = value;
-                RaisePropertyChanged();
-                UpdateGraphElement();
-            }
-        }
+        public TripSaverFuse Fuse { get; set; }
 
-        public double MaxTripTime
-        {
-            get
-            {
-                return _maxTripTime;
-            }
-            set
-            {
-                _maxTripTime = value;
-                RaisePropertyChanged();
-                UpdateGraphElement();
-            }
-        }
+        public double MaxTripTime { get; set; }
 
-        public double HiSetMul
-        {
-            get
-            {
-                return _hiSet;
-            }
-            set
-            {
-                _hiSet = value;
-                RaisePropertyChanged();
-                UpdateGraphElement();
-            }
-        }
+        public double HiSetMul { get; set; }
 
-        public double MinTripMultiplier
-        {
-            get
-            {
-                return _minTripMultiplier;
-            }
-            set
-            {
-                _minTripMultiplier = value;
-                RaisePropertyChanged();
-                UpdateGraphElement();
-            }
-        }
-
+        public double MinTripMultiplier { get; set; }
+        
         public double Pickup
         {
             get
@@ -119,25 +74,9 @@ namespace oprot.plot.core
             }
         }
 
-        public override OxyColor Color
+        protected override void PretendCopyConstructor(GraphableFeature g)
         {
-            get
-            {
-                return _plotElement == null ? _color : ((LogFunctionSeries)_plotElement).ActualColor;
-            }
-            set
-            {
-                _color = value;
-                if (_plotElement != null)
-                    ((LogFunctionSeries)_plotElement).Color = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(DisplayColor));
-                RaiseGraphElementInvalidated();
-            }
-        }
-
-        public TripSaver(GraphFeature g = null) : base(g)
-        {
+            base.PretendCopyConstructor(g);
             if (g is TripSaver g2)
             {
                 _fuseenum = g2.Fuse;
@@ -162,50 +101,6 @@ namespace oprot.plot.core
             if (tripTime < _minTripHardLimit)
                 return _minTripHardLimit;
             return tripTime;
-        }
-
-        public override PlotElement GetPlotElement()
-        {
-            var s = new LogFunctionSeries(Curve, _minimumCurrent, _maximumCurrent, _numberSamples, DisplayName, DiscriminationMargin, _tempMultiplier * _baseVoltage / _voltage);
-            s.ShowDiscriminationMargin = ShowDiscriminationMargin;
-            s.Color = _color;
-            if (_tempMultiplier != 1.0)
-                s.LineStyle = LineStyle.Dash;
-            return s;
-        }
-
-        private bool _showDiscriminationMargin = true;
-        private double _discriminationMargin = 0.2;
-
-        public bool ShowDiscriminationMargin
-        {
-            get
-            {
-                return _showDiscriminationMargin;
-            }
-            set
-            {
-                _showDiscriminationMargin = value;
-                ((LogFunctionSeries)_plotElement).ShowDiscriminationMargin = value;
-                RaiseGraphElementInvalidated();
-                RaisePropertyChanged(nameof(ShowDiscriminationMargin));
-            }
-        }
-
-        public double DiscriminationMargin
-        {
-            get
-            {
-                return _discriminationMargin;
-            }
-            set
-            {
-                if (value < 0.01 || value > 1)
-                    return;
-                _discriminationMargin = value;
-                RaisePropertyChanged(nameof(DiscriminationMargin));
-                UpdateGraphElement();
-            }
         }
     }
 }

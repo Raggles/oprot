@@ -21,9 +21,17 @@ namespace oprot.plot.core
 
         public bool ShowDiscriminationMargin { get; set; } = true;
 
+        public ProtectionCharacteristic Characteristic { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref = "LogFunctionSeries" /> class.
         /// </summary>
+        public LogFunctionSeries(ProtectionCharacteristic c)
+        {
+            //change this to LineSeriesFeature
+            Characteristic = c;
+        }
+
         public LogFunctionSeries() { }
 
         /// <summary>

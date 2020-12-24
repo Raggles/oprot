@@ -42,13 +42,6 @@ namespace oprot.plot.wpf
             }
         }
 
-        private void btnAddCurve_Click(object sender, RoutedEventArgs e)
-        {
-            //TODO: this should be a command on the viewmodel
-            ((MainViewModel)DataContext).AddNewCurve();
-            listBox.SelectedItem = ((MainViewModel)DataContext).Curves[((MainViewModel)DataContext).Curves.Count - 1];
-        }
-
         private void mnuAbout_Click(object sender, RoutedEventArgs e)
         {
             new About().ShowDialog();
@@ -59,25 +52,10 @@ namespace oprot.plot.wpf
             Close();
         }
 
-        private void mnuSaveAs_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog d = new SaveFileDialog();
-            if (d.ShowDialog() ?? false)
-            {
-                var jsonSerializerSettings = new JsonSerializerSettings()
-                {
-                    TypeNameHandling = TypeNameHandling.All,
-                    Formatting = Newtonsoft.Json.Formatting.Indented
-
-                };
-                var json = JsonConvert.SerializeObject(DataContext, jsonSerializerSettings);
-                File.WriteAllText(d.FileName, json);
-            }
-        }
-
         private void mnuShowChart_Click(object sender, RoutedEventArgs e)
         {
-            new DataWindow(((MainViewModel)DataContext).Curves).Show();
+            //TODO
+            //new DataWindow(((MainViewModel)DataContext).Features, ((MainViewModel)DataContext).PlotDetails).Show();
         }
 
         private void mnuOpen_Click(object sender, RoutedEventArgs e)
@@ -98,26 +76,6 @@ namespace oprot.plot.wpf
             }
         }
 
-        private void mnuSavePlot_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                SaveFileDialog d = new SaveFileDialog();
-                d.Filter = "PNG files|*.png";
-                if (d.ShowDialog() ?? false)
-                {
-                    double w = plotView.ActualWidth;
-                    double h = plotView.ActualHeight;
-                    var pngExporter = new PngExporter { Width = (int)w, Height = (int)h, Background = OxyColors.White };
-                    pngExporter.ExportToFile(((MainViewModel)DataContext).ProtectionPlot, d.FileName);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-
-        }
 
         private void mnuClear_Click(object sender, RoutedEventArgs e)
         {

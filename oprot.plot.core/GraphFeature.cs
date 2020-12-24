@@ -1,6 +1,7 @@
 ﻿using MicroMvvm;
 using Newtonsoft.Json;
 using OxyPlot;
+using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,291 +33,137 @@ namespace oprot.plot.core
         NHgGFuse690V,
         ABBCEF
     }
-    public abstract class GraphFeature : ObservableObject
+    public class GraphFeature : ObservableObject
     {
-        public static event EventHandler<PropertyChangedEventArgs> StaticPropertyChanged;
-        protected static void NotifyStaticPropertyChanged([CallerMemberName] String propertyName = "")
-        {
-            StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(propertyName));
-        }
+        //whenever a curve parameter has changed, i.e. the plot element has been regenerated
+        public event Action GraphFeatureChanged;
+        //whenever the plot element has not changed, but required re-rendering.
+        //e.g. the discrimination margin has been enabled/disabled
+        public event Action GraphFeatureInvalidated;
 
-        protected static double _maximumCurrent = 30000;// Properties.Settings.Default.MaximumCurrent;
-        protected static double _minimumCurrent = 1;// Properties.Settings.Default.MinimumCurrent;
-        protected static int _numberSamples = 1000;// Properties.Settings.Default.NumberOfSamples;
-        protected static double _baseVoltage = 11000;// Properties.Settings.Default.BaseVoltage;
-        private static List<GraphFeature> _graphFeatures = new List<GraphFeature>();
 
-        public event Action CurveChanged;
-        public event Action CurveInvalidated;
+        private GraphFeatureKind _featureType = GraphFeatureKind.IECStandardInverse;
 
-        protected string _name = "Name";
-        protected double _voltage = 11000;// Properties.Settings.Default.BaseVoltage;
-        protected OxyColor _color = OxyColors.Undefined;
-        protected bool _hidden = false;
-        protected double _tempMultiplier = 1.0;
-        protected bool _appendCurveTypeToDisplayName = true;
-        protected PlotElement _plotElement;
-
-        public static double BaseVoltage
-        {
-            get
-            {
-                return _baseVoltage;
-            }
-            set
-            {
-                _baseVoltage = value;
-                NotifyStaticPropertyChanged();
-                UpdateAllCurves();
-            }
-        }
-
-        public static int NumberOfSamples
-        {
-            get
-            {
-                return _numberSamples;
-            }
-            set
-            {
-                _numberSamples = value;
-                UpdateAllCurves();
-                NotifyStaticPropertyChanged();
-            }
-        }
-
-        public static double MaximumCurrent
-        {
-            get
-            {
-                return _maximumCurrent;
-            }
-            set
-            {
-                _maximumCurrent = value;
-                UpdateAllCurves();
-                NotifyStaticPropertyChanged();
-            }
-        }
-
-        public static double MinimumCurrent
-        {
-            get
-            {
-                return _minimumCurrent;
-            }
-            set
-            {
-                _minimumCurrent = value;
-                UpdateAllCurves();
-                NotifyStaticPropertyChanged();
-            }
-        }
-
-        [JsonConverter(typeof(OxyColorJsonConverter))]
-        public abstract OxyColor Color { get; set; }
-
-        [JsonIgnore]
-        public string Description
-        {
-            get
-            {
-                return $"{Name}{this}";
-            }
-        }
-
-        public bool Hidden
-        {
-            get
-            {
-                return _hidden;
-            }
-            set
-            {
-                _hidden = value;
-                RaisePropertyChanged(nameof(Hidden));
-                RaisePropertyChanged(nameof(DisplayColor));               
-                UpdateGraphElement();
-            }
-        }
         
-        [JsonIgnore]
-        public OxyColor DisplayColor
+        [AlsoNotifyFor(nameof(Feature))]
+        public GraphFeatureKind FeatureType
         {
             get
             {
-                if (_hidden)
-                    return OxyColor.FromArgb(255, 78, 78, 78);
-                else
-                    return Color;
-            }
-        }
-
-        public double TempMultiplier
-        {
-            get
-            {
-                return _tempMultiplier;
+                return _featureType;
             }
             set
             {
-                _tempMultiplier = value;
-                RaisePropertyChanged(nameof(TempMultiplier));
-                UpdateGraphElement();
+                _featureType = value;
+                SetNewFeature();
+                RaiseFeatureChanged();
             }
         }
 
-        public double Voltage
-        {
-            get
-            {
-                return _voltage;
-            }
-            set
-            {
-                _voltage = value;
-                RaisePropertyChanged(nameof(Voltage));
-                UpdateGraphElement();
-            }
-        }
+        public GraphableFeature Feature { get; private set; }
+        
 
         public GraphFeature()
         {
-            Register(this);
-        }
-
-        public GraphFeature(GraphFeature g) : this()
-        {
-            if (g != null)
-            {
-                _name = g.Name;
-                _voltage = g.Voltage;
-                _color = g.Color;
-                _hidden = g.Hidden;
-                _tempMultiplier = g.TempMultiplier;
-                _appendCurveTypeToDisplayName = g.AppendCurveTypeToDisplayName;
-            }
-        }
-
-        ~GraphFeature()
-        {
-            Unregister(this);
-        }
-
-        public static void Register(GraphFeature g)
-        {
-            _graphFeatures.Add(g);
-        }
-
-        public static void Unregister(GraphFeature g)
-        {
-            _graphFeatures.Remove(g);
-        }
-
-        public static void UpdateAllCurves()
-        {
-            foreach (var g in _graphFeatures)
-            {
-                g.UpdateGraphElement();
-            }
-        }
-
-        protected void UpdateGraphElement()
-        {
-            _plotElement = GetPlotElement();
-            RaisePropertyChanged(nameof(GraphElement));
-            CurveChanged?.Invoke();
-        }
-
-        protected void RaiseGraphElementInvalidated()
-        {
-            CurveInvalidated?.Invoke();
-        }
-
-        [JsonIgnore]
-        public PlotElement GraphElement
-        {
-            get
-            {
-                if (_plotElement == null)
-                {
-                    _plotElement = GetPlotElement();
-                }
-                return _plotElement;
-            }
-        }
-
-        public string Name
-        {
-            get
-            {
-                return _name;
-            }
-            set
-            {
-                _name = value;
-                RaisePropertyChanged(nameof(Description));
-                RaisePropertyChanged(nameof(Name));
-                UpdateGraphElement();
-            }
-        }
-
-        public string DisplayName
-        {
-            get
-            {
-                if (AppendCurveTypeToDisplayName)
-                {
-                    return Description;
-                }
-                else
-                {
-                    return Name;
-                }
-            }
-        }
-
-        public bool AppendCurveTypeToDisplayName
-        {
-            get
-            {
-                return _appendCurveTypeToDisplayName;
-            }
-            set
-            {
-                _appendCurveTypeToDisplayName = value;
-                RaisePropertyChanged(nameof(DisplayName));
-                RaisePropertyChanged(nameof(AppendCurveTypeToDisplayName));
-                UpdateGraphElement();
-            }
-        }
-
-        public abstract PlotElement GetPlotElement();
-
-        public override string ToString()
-        {
-            return "";
+            SetNewFeature();
         }
 
         public object Clone()
         {
-            ProtectionCharacteristic obj = (ProtectionCharacteristic)this.MemberwiseClone();
-            obj.ClearNotifyChangedHandler();
+            GraphFeature obj = (GraphFeature)this.MemberwiseClone();
+            obj.CloneClean();
             return obj;
         }
 
-        void SetTempMultiplierExecute(object d)
+        private void CloneClean()
         {
-            TempMultiplier = double.Parse(d.ToString());
+            GraphFeatureChanged = null;
+            GraphFeatureInvalidated = null;
+
+            Feature = (GraphableFeature)Feature.Clone();
+            Feature.PropertyChanged += _curveObject_PropertyChanged;
+        }
+        
+
+
+        private void RaiseFeatureChanged()
+        {
+            GraphFeatureChanged?.Invoke();
         }
 
-        bool CanSetTempMultiplierExecute(object d)
+        private void RaiseCurveInvalidated()
         {
-            return true;
+            GraphFeatureInvalidated?.Invoke();
         }
 
-        [JsonIgnore]
-        public ICommand SetTempMultiplier { get { return new oprot.plot.core.RelayCommand<object>(SetTempMultiplierExecute, CanSetTempMultiplierExecute); } }
+        private void _curveObject_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            RaiseFeatureChanged();
+        }
+        private void SetNewFeature()
+        {
+            switch (_featureType)
+            {
+                case GraphFeatureKind.DefiniteTime:
+                    Feature = GraphableFeature.FromOther<DefiniteTimeCharacteristic>(Feature);
+                    break;
+                case GraphFeatureKind.IECStandardInverse:
+                    Feature = GraphableFeature.FromOther<IECStandardInverse>(Feature);
+                    break;
+                case GraphFeatureKind.IECVeryInverse:
+                    Feature = GraphableFeature.FromOther<IECVeryInverse>(Feature); 
+                    break;
+                case GraphFeatureKind.IECExtremelyInverse:
+                    Feature = GraphableFeature.FromOther<IECExtremelyInverse>(Feature);
+                    break;
+                case GraphFeatureKind.IEEEModeratelyInverse:
+                    Feature = GraphableFeature.FromOther<IEEEModeratelyInverse>(Feature);
+                    break;
+                case GraphFeatureKind.IEEEVeryInverse:
+                    Feature = GraphableFeature.FromOther<IEEEVeryInverse>(Feature);
+                    break;
+                case GraphFeatureKind.IEEEExtremelyInverse:
+                    Feature = GraphableFeature.FromOther<IEEEExtremelyInverse>(Feature);
+                    break;
+                case GraphFeatureKind.SandCPositrolFuseTypeK:
+                    Feature = GraphableFeature.FromOther<SandCFuseK>(Feature);
+                    break;
+                case GraphFeatureKind.SandCPositrolFuseTypeT:
+                    Feature = GraphableFeature.FromOther<SandCFuseT>(Feature);
+                    break;
+                case GraphFeatureKind.ChanceFuseTypeK:
+                    Feature = GraphableFeature.FromOther<ChanceFuseK>(Feature);
+                    break;
+                case GraphFeatureKind.ChanceFuseTypeT:
+                    Feature = GraphableFeature.FromOther<ChanceFuseT>(Feature);
+                    break;
+                case GraphFeatureKind.FuseSaver:
+                    Feature = GraphableFeature.FromOther<FuseSaver>(Feature);
+                    break;
+                case GraphFeatureKind.TripSaver:
+                    Feature = GraphableFeature.FromOther<TripSaver>(Feature);
+                    break;
+                case GraphFeatureKind.NHgGFuse690V:
+                    Feature = GraphableFeature.FromOther<NHFuse>(Feature);
+                    break;
+                case GraphFeatureKind.HRCBoltedFuse:
+                    Feature = GraphableFeature.FromOther<HRCBoltedFuse>(Feature);
+                    break;
+                case GraphFeatureKind.HRCKnifeFuse:
+                    Feature = GraphableFeature.FromOther<HRCKnifeFuse>(Feature);
+                    break;
+                case GraphFeatureKind.HRCMJTypeFuse:
+                    Feature = GraphableFeature.FromOther<HRCMJ30Fuse>(Feature);
+                    break;
+                case GraphFeatureKind.ABBCEF:
+                    Feature = GraphableFeature.FromOther<ABBCEFFuse>(Feature);
+                    break;
+                case GraphFeatureKind.FaultLevelAnnotation:
+                    Feature = GraphableFeature.FromOther<FaultLevelAnnotation>(Feature);
+                    break;
+            }
+            Feature.PropertyChanged += _curveObject_PropertyChanged;
+        }
 
     }
 }

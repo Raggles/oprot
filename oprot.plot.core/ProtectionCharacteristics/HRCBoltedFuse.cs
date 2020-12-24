@@ -6,11 +6,11 @@ namespace oprot.plot.core
 {
     public class HRCBoltedFuse : FuseSingleCharacteristic
     {
-        public HRCBoltedFuse(GraphFeature g = null) : base(@".\Curves\HRC Bolted.txt", g) { }
+        public HRCBoltedFuse() : base(@".\Curves\HRC Bolted.txt") { }
 
         public override string ToString()
         {
-            return $" (Bussmann gG {FuseSize})";
+            return $"Bussmann gG {FuseSize}";
         }
     }
 }

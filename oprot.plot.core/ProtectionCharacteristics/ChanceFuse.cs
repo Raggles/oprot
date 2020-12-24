@@ -2,21 +2,21 @@
 {
     class ChanceFuseK : FuseDualCharacteristic
     {
-        public ChanceFuseK(GraphFeature g = null) : base(@".\Curves\ChanceMeltingK.txt", @".\Curves\ChanceClearingK.txt", g) { }
+        public ChanceFuseK() : base(@".\Curves\ChanceMeltingK.txt", @".\Curves\ChanceClearingK.txt") { }
 
         public override string ToString()
         {
-            return $" (Chance {FuseSize})";
+            return $"Chance {FuseSize}";
         }
     }
 
     class ChanceFuseT : FuseDualCharacteristic
     {
-        public ChanceFuseT(GraphFeature g = null) : base(@".\Curves\ChanceMeltingT.txt", @".\Curves\ChanceClearingT.txt", g) { }
+        public ChanceFuseT() : base(@".\Curves\ChanceMeltingT.txt", @".\Curves\ChanceClearingT.txt") { }
 
         public override string ToString()
         {
-            return $" (Chance {FuseSize})";
+            return $"Chance {FuseSize}";
         }
     }
 

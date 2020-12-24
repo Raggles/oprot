@@ -14,7 +14,7 @@ namespace MicroMvvm
         readonly Action<T> _execute;
         readonly Predicate<T> _canExecute;        
         
-        public RelayCommand(Action<T> execute) : this(execute, null) { }
+        public RelayCommand(Action<T> execute, object canAddFeatureExecute) : this(execute, null) { }
         public RelayCommand(Action<T> execute, Predicate<T> canExecute)
         {
             if (execute == null)

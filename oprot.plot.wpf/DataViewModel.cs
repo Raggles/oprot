@@ -6,26 +6,13 @@ using oprot.plot.core;
 namespace oprot.plot.wpf
 {
     public class DataViewModel : ObservableObject
-    {
-        private GraphFeatureViewModel _curve = new GraphFeatureViewModel();
-        private DataTable _data;
+    {        
+        public DataTable Data { get; set; }
+        
 
-        public DataTable Data
-        {
-            get
-            {
-                return _data;
-            }
-            set
-            {
-                _data = value;
-                RaisePropertyChanged(nameof(Data));
-            }
-        }
+        public ObservableCollection<GraphFeature> Curves { get; set; } = new ObservableCollection<GraphFeature>();
 
-        public ObservableCollection<GraphFeatureViewModel> Curves { get; set; } = new ObservableCollection<GraphFeatureViewModel>();
-
-        public void Generate()
+        public void Generate(PlotDetails d)
         {
             DataTable dt = new DataTable();
             var current = dt.Columns.Add("Current (A)", typeof(float));
@@ -39,7 +26,7 @@ namespace oprot.plot.wpf
 
             foreach (var curve in Curves)
             {
-                if (!(curve.CurveObject is ProtectionCharacteristic c))
+                if (!(curve.Feature is ProtectionCharacteristic c))
                     continue;
                 string name = c.Name.Replace(".", "") ;
                 int j = 2;
@@ -52,7 +39,7 @@ namespace oprot.plot.wpf
 
                 for (int i = 0; i < 10000; i++)
                 {
-                    dt.Rows[i][col] = (float)c.Curve(i * GraphFeature.BaseVoltage / c.Voltage);
+                    dt.Rows[i][col] = (float)c.Curve(i * d.BaseVoltage / c.Voltage);
                 }
             }
             Data = dt;

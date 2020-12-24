@@ -13,58 +13,16 @@ namespace oprot.plot.core
     public class FuseDualCharacteristic : ProtectionCharacteristic
     {
         public List<string> FuseSizes { get; set; } = new List<string>();
-        private FuseCurveType _fusecurve;
+        //private FuseCurveType _fusecurve;
         //possibly an ugly way of achieving this, but it works for now
         private Dictionary<string, Dictionary<FuseCurveType, DataInterpolator>> _mapping = new Dictionary<string, Dictionary<FuseCurveType, DataInterpolator>>();
-        private string _fuseSize;
+        //private string _fuseSize;
 
-        public FuseCurveType FuseCurve
-        {
-            get
-            {
-                return _fusecurve;
-            }
-            set
-            {
-                _fusecurve = value;
-                RaisePropertyChanged(nameof(FuseCurve));
-                UpdateGraphElement();
-            }
-        }
+        public FuseCurveType FuseCurve { get; set; }
 
-        public string FuseSize
-        {
-            get
-            {
-                return _fuseSize;
-            }
-            set
-            {
-                _fuseSize = value;
-                RaisePropertyChanged(nameof(FuseSize));
-                RaisePropertyChanged(nameof(Description));
-                UpdateGraphElement();
-            }
-        }
+        public string FuseSize { get; set; }
 
-        public override OxyColor Color
-        {
-            get
-            {
-                return _plotElement == null ? _color : ((FuseSeries)_plotElement).ActualColor;
-            }
-            set
-            {
-                _color = value;
-                if (_plotElement != null)
-                    ((FuseSeries)_plotElement).Color = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(DisplayColor));
-                RaiseGraphElementInvalidated();
-            }
-        }
-
-        public FuseDualCharacteristic(string meltingFile, string clearingFile, GraphFeature g = null) : base(g)
+        public FuseDualCharacteristic(string meltingFile, string clearingFile)
         {
             var melting = CustomCurveParser.ParseFile(meltingFile);
             var clearing = CustomCurveParser.ParseFile(clearingFile);
@@ -94,15 +52,26 @@ namespace oprot.plot.core
 
         public override string ToString()
         {
-            return $" ({FuseSize})";
+            return $"{FuseSize}";
         }
 
-        public override PlotElement GetPlotElement()
+        public override double LowerMargin(double d)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override double UpperMargin(double d)
+        {
+            throw new NotImplementedException();
+        }
+
+        
+        protected override PlotElement GetPlotElement()
         {
             //TODO: this is backwards, we can rewrite this to give the correct info now
-            var s = new FuseSeries(this, _minimumCurrent, _maximumCurrent, _numberSamples, DisplayName, _tempMultiplier * _baseVoltage / _voltage);
-            s.Color = _color;
-            if (_tempMultiplier != 1.0)
+            var s = new FuseSeries(this, PlotParameters.MinimumCurrent, PlotParameters.MaximumCurrent, PlotParameters.NumberOfSamples, DisplayName, TempMultiplier* PlotParameters.BaseVoltage/ Voltage);
+            s.Color = this.Color;
+            if (TempMultiplier != 1.0)
                 s.LineStyle = LineStyle.Dash;
             return s;
         }

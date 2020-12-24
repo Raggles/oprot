@@ -10,11 +10,12 @@
         xmlns:properties="clr-namespace:oprot.plot.wpf.Properties"
         mc:Ignorable="d"
         Icon="/Resources/icon.png"
-        Title="oprot.plot.wpf" Height="494" Width="801" WindowState="Maximized" Loaded="Window_Loaded">
+        Title="oprot.plot.wpf" Height="494" Width="801" WindowState="Maximized" Loaded="Window_Loaded" x:Name="mainWindow">
     <Window.DataContext >
         <local:MainViewModel x:Name="_model"/>
     </Window.DataContext>
     <Window.Resources>
+        
         <ObjectDataProvider x:Key="dataFromEnumCurve" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="ppcore:GraphFeatureKind"/>
@@ -35,7 +36,7 @@
                 <x:Type TypeName="ppcore:TripSaverFuse"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-
+        <local:NullBooleanConverter x:Key="NullBoolConverter" />
         <local:BoolToVisibilityConverter x:Key="BoolToCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" />
         <local:BoolToVisibilityConverter x:Key="BoolToCollapsedInvertedConverter" TrueValue="Collapsed" FalseValue="Visible" />
         <local:OxyColorToBrushConverter x:Key="OxyToBrushConverter" />
@@ -208,10 +209,10 @@
                     <Button Click="mnuOpen_Click" >
                         <Image Source="Resources/OpenIcon.png"  ToolTip="Open" />
                     </Button>
-                    <Button Click="mnuSaveAs_Click" >
+                    <Button Command="{Binding SaveAs}" >
                         <Image Source="Resources/SaveIcon.png" ToolTip="Save"/>
                     </Button>
-                    <Button Click="mnuSavePlot_Click" >
+                    <Button Command="{Binding ExoprtImage}" >
                         <Image Source="Resources/ExportImageIcon.png" ToolTip="Export to image"/>
                     </Button>
                     <Button Click="mnuCopy_Click" >
@@ -220,10 +221,13 @@
                     <Button Click="mnuPrint_click" >
                         <Image Source="Resources/Print.png" ToolTip="Print" />
                     </Button>
-                    <Button Click="btnAddCurve_Click" >
-                        <Image Source="Resources/AddIcon.png" ToolTip="Add curve"/>
+                    <Button Command="{Binding AddFeature}" CommandParameter="{Binding SelectedGroup}" >
+                        <Image Source="Resources/AddIcon.png" ToolTip="Add Feature"/>
                     </Button>
-                    <Button Command="{Binding DeleteCurve}" CommandParameter="{Binding SelectedItem, ElementName=listBox}" >
+                    <Button Command="{Binding AddGroup}" >
+                        <Image Source="Resources/AddIcon.png" ToolTip="Add Group"/>
+                    </Button>
+                    <Button Command="{Binding DeleteFeature}" CommandParameter="{Binding SelectedFeature}" >
                         <Image Source="Resources/DeleteIcon.png" ToolTip="Delete curve"/>
                     </Button>
                     <Button Click="mnuShowChart_Click" >
@@ -246,15 +250,15 @@
                 </Expander.Header>
                 <Grid Background="#FFE5E5E5" Width="300">
                     <Label Content="Minimum Amps" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                    <TextBox HorizontalAlignment="Left" Margin="126,4,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding Path=(ppcore:GraphFeature.MinimumCurrent)}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,4,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding PlotDetails.MinimumCurrent}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
                     <Label Content="Number of Samples" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,50,0,0"/>
-                    <TextBox HorizontalAlignment="Left" Margin="126,54,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding Path=(ppcore:GraphFeature.NumberOfSamples)}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,54,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding PlotDetails.NumberOfSamples}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
                     <Label Content="Plot Title" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,75,0,0"/>
                     <TextBox HorizontalAlignment="Left" Margin="126,79,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding PlotTitle}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
                     <Label Content="Base Voltage (v)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,100,0,0"/>
-                    <TextBox HorizontalAlignment="Left" Margin="126,104,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding Path=(ppcore:GraphFeature.BaseVoltage)}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,104,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding PlotDetails.BaseVoltage}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
                     <Label Content="Maximum Amps" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,25,0,0"/>
-                    <TextBox HorizontalAlignment="Left" Margin="126,29,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding Path=(ppcore:GraphFeature.MaximumCurrent)}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                    <TextBox HorizontalAlignment="Left" Margin="126,29,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding PlotDetails.MaximumCurrent}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
                     <Label Content="Absolute Max (A)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,125,0,0"/>
                     <TextBox HorizontalAlignment="Left" Margin="126,129,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding ProtectionPlot.Axes[0].AbsoluteMaximum}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
                     <Label Content="Absolute Min (A)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,150,0,0"/>
@@ -275,32 +279,32 @@
                 </Expander.Header>
                 <Grid Background="#FFE5E5E5" Width="260">
                     <DockPanel LastChildFill="True">
-                        <StackPanel DockPanel.Dock="Top" DataContext="{Binding SelectedItem, ElementName=listBox}" Height="350" IsEnabled="{Binding SelectedItems.Count, ElementName=listBox}">
+                        <StackPanel DockPanel.Dock="Top" DataContext="{Binding DataContext.SelectedFeature, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Height="350" IsEnabled="{Binding DataContext.SelectedFeature, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Converter={StaticResource NullBoolConverter}}">
                             <Grid>
                                 <Label Content="Name" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
-                                <TextBox HorizontalAlignment="Left" Margin="76,4,0,0" VerticalAlignment="Top" Width="139" Height="20" Text="{Binding CurveObject.Name}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
-                                <Button Margin="0,0,20,2" HorizontalAlignment="Right" Width="20" Height="20" VerticalAlignment="Bottom" Background="{Binding CurveObject.Color, Converter={StaticResource OxyToBrushConverter}}" Command="{Binding DataContext.SelectColor, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding }" />
+                                <TextBox HorizontalAlignment="Left" Margin="76,4,0,0" VerticalAlignment="Top" Width="139" Height="20" Text="{Binding Feature.Name}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                                <Button Margin="0,0,20,2" HorizontalAlignment="Right" Width="20" Height="20" VerticalAlignment="Bottom" Background="{Binding Feature.Color, Converter={StaticResource OxyToBrushConverter}}" Command="{Binding DataContext.SelectColor, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding }" />
                             </Grid>
                             <Grid>
                                 <Label Content="Curve:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
-                                <ComboBox  HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" ItemsSource="{Binding Source={StaticResource dataFromEnumCurve}}" SelectedItem="{Binding Path=CurveType}" />
+                                <ComboBox  HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" ItemsSource="{Binding Source={StaticResource dataFromEnumCurve}}" SelectedItem="{Binding Path=FeatureType}" />
                             </Grid>
                             <Grid>
                                 <Label Content="Voltage:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
-                                <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding CurveObject.Voltage}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
+                                <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" Height="20" Text="{Binding Feature.Voltage}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
                             </Grid>
-                            <ContentControl Content="{Binding CurveObject}" />
+                            <ContentControl Content="{Binding Feature}" />
                             <Grid>
                                 <Label Content="Temp Mult:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
-                                <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="40" Height="20" Text="{Binding CurveObject.TempMultiplier}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
-                                <Button Margin="121,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="1.0" Command="{Binding CurveObject.SetTempMultiplier}" CommandParameter="1.0" />
-                                <Button Margin="151,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="0.5" Command="{Binding CurveObject.SetTempMultiplier}" CommandParameter="0.5" />
-                                <Button Margin="181,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="1.16" Command="{Binding CurveObject.SetTempMultiplier}" CommandParameter="1.16" />
-                                <Button Margin="211,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="0.58" Command="{Binding CurveObject.SetTempMultiplier}" CommandParameter="0.58" />
+                                <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="40" Height="20" Text="{Binding Feature.TempMultiplier}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
+                                <Button Margin="121,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="1.0" Command="{Binding Feature.SetTempMultiplier}" CommandParameter="1.0" />
+                                <Button Margin="151,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="0.5" Command="{Binding Feature.SetTempMultiplier}" CommandParameter="0.5" />
+                                <Button Margin="181,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="1.16" Command="{Binding Feature.SetTempMultiplier}" CommandParameter="1.16" />
+                                <Button Margin="211,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="0.58" Command="{Binding Feature.SetTempMultiplier}" CommandParameter="0.58" />
                             </Grid>
 
                             <Grid>
-                                <CheckBox Content="Hidden" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="89" Height="20" IsChecked="{Binding CurveObject.Hidden}"  />
+                                <CheckBox Content="Hidden" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="89" Height="20" IsChecked="{Binding Feature.Hidden}"  />
                             </Grid>
                             <!--
                             <Grid>
@@ -308,34 +312,89 @@
                             </Grid>
                             -->
                         </StackPanel>
-                        <ListBox x:Name="listBox" Margin="0,4,0,0" ItemsSource="{Binding Curves}" HorizontalContentAlignment="Stretch" >
+                        <ListBox x:Name="lbGroups" Margin="0,4,0,0" SelectedItem="{Binding DataContext.SelectedGroup, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" ItemsSource="{Binding Groups}" HorizontalContentAlignment="Stretch" >
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderThickness="2" BorderBrush="{Binding CurveObject.DisplayColor, Converter={StaticResource OxyToBrushConverter}}">
-                                        <Grid Background="{Binding CurveObject.DisplayColor, Converter={StaticResource OxyToBrushConverterFaded}}" HorizontalAlignment="Stretch">
-                                            <TextBlock Text="{Binding CurveObject.Description}" FontSize="16"/>
-                                        </Grid>
-                                    </Border>
+                                    <Expander Header="{Binding Name}" IsExpanded="{Binding Expanded}">
+                                        <ListBox SelectedItem="{Binding DataContext.SelectedFeature, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Margin="0,0,0,0" ItemsSource="{Binding Features}" HorizontalContentAlignment="Stretch" >
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border BorderThickness="2" BorderBrush="{Binding Feature.DisplayColor, Converter={StaticResource OxyToBrushConverter}}">
+                                                        <Grid Background="{Binding Feature.DisplayColor, Converter={StaticResource OxyToBrushConverterFaded}}" HorizontalAlignment="Stretch">
+                                                            <TextBlock Text="{Binding Feature.DisplayName}" FontSize="16"/>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                            <ListBox.Resources>
+                                                <ContextMenu x:Key="ItemContextMenu" >
+                                                    <MenuItem Header="Duplicate" Command="{Binding DataContext.DuplicateFeature, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />
+                                                    <MenuItem Header="Delete" Command="{Binding DataContext.DeleteFeature, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />
+                                                    <MenuItem Header="Hidden" IsCheckable="True" IsChecked="{Binding Feature.Hidden}"/>
+                                                    <MenuItem Header="Move Up" Command="{Binding DataContext.MoveFeatureUp, Source={x:Reference mainWindow}}" CommandParameter="{Binding}"/>
+                                                    <MenuItem Header="Move Down" Command="{Binding DataContext.MoveFeatureDown, Source={x:Reference mainWindow}}" CommandParameter="{Binding}"/>
+                                                    <MenuItem Header="Copy (JSON)" Command="{Binding DataContext.CopyFeatureJson, Source={x:Reference mainWindow}}" CommandParameter="{Binding}"/>
+                                                    <MenuItem Header="Copy (B64)" Command="{Binding DataContext.CopyFeatureBase64, Source={x:Reference mainWindow}}" CommandParameter="{Binding}"/>
+                                                    <MenuItem Header="Paste" Command="{Binding DataContext.PasteFeature, Source={x:Reference mainWindow}}" CommandParameter="{Binding}"/>
+
+                                                </ContextMenu>
+                                            </ListBox.Resources>
+                                            <ListBox.ItemContainerStyle>
+                                                <Style TargetType="{x:Type ListBoxItem}" >
+                                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                                </Style>
+                                            </ListBox.ItemContainerStyle>
+                                        </ListBox>
+                                        <Expander.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Delete Group" Command="{Binding Path=DataContext.DeleteGroup, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />
+                                                <MenuItem Header="Rename Group" Command="{Binding Path=DataContext.RenameGroup, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />
+                                                <MenuItem Header="Duplicate Group" Command="{Binding Path=DataContext.DuplicateGroup, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />
+
+                                            </ContextMenu>
+                                        </Expander.ContextMenu>
+                                    </Expander>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
-                            <ListBox.Resources>
-                                <ContextMenu x:Key="ItemContextMenu" >
-                                    <MenuItem Header="Duplicate" Command="{Binding DataContext.DuplicateCurve, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}" />
-                                    <MenuItem Header="Delete" Command="{Binding DataContext.DeleteCurve, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}" />
-                                    <MenuItem Header="Hidden" IsCheckable="True" IsChecked="{Binding CurveObject.Hidden}"/>
-                                    <MenuItem Header="Move Up" Command="{Binding DataContext.MoveCurveUp, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="Move Down" Command="{Binding DataContext.MoveCurveDown, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="Copy (JSON)" Command="{Binding DataContext.CopyCurveJson, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="Copy (B64)" Command="{Binding DataContext.CopyCurveBase64, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="Paste" Command="{Binding DataContext.PasteCurve, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding}"/>
-                                    
-                                </ContextMenu>
-                            </ListBox.Resources>
                             <ListBox.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListBoxItem}" >
-                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                <Border BorderBrush="Black" BorderThickness="0" x:Name="groupBorder">
+                                                    <ContentPresenter />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsSelected" Value="true">
+                                                        <Setter TargetName="groupBorder" Property="BorderThickness">
+                                                            <Setter.Value>
+                                                                <Thickness>1</Thickness>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <EventTrigger RoutedEvent="Control.PreviewMouseLeftButtonDown">
+                                            <BeginStoryboard>
+                                                <Storyboard Storyboard.TargetProperty="(Selector.IsSelected)">
+                                                    <BooleanAnimationUsingKeyFrames Duration="0:0:0">
+                                                        <DiscreteBooleanKeyFrame Value="True" />
+                                                    </BooleanAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Style.Triggers>
+                                    
                                 </Style>
                             </ListBox.ItemContainerStyle>
+                            <ListBox.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Add Group" />
+                                </ContextMenu>
+                            </ListBox.ContextMenu>
                         </ListBox>
                     </DockPanel>
                 </Grid>

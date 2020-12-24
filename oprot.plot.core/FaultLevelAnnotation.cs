@@ -6,45 +6,13 @@ using OxyPlot.Annotations;
 
 namespace oprot.plot.core
 {
-    public class FaultLevelAnnotation : GraphFeature
+    public class FaultLevelAnnotation : GraphableFeature
     {
-        private double _current = 10000;
-        public double Current
-        {
-            get
-            {
-                return _current;
-            }
-            set
-            {
-                _current = value;
-                RaisePropertyChanged(nameof(Current));
-                UpdateGraphElement();
-            }
-        }
+        public double Current { get; set; }
 
-        public override OxyColor Color
+        protected override PlotElement GetPlotElement()
         {
-            get
-            {
-                return _plotElement == null ? _color : ((LineAnnotation)_plotElement).Color;
-            }
-            set
-            {
-                _color = value;
-                if (_plotElement != null)
-                    ((LineAnnotation)_plotElement).Color = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(DisplayColor));
-                RaiseGraphElementInvalidated();
-            }
+            return new LineAnnotation { Type = LineAnnotationType.Vertical, X = Current * Voltage / PlotParameters.BaseVoltage , MaximumY = 10000, StrokeThickness = 2, Color = Color, LineStyle = LineStyle.Dash, Text = Name };
         }
-
-        public override PlotElement GetPlotElement()
-        {
-            return new LineAnnotation { Type = LineAnnotationType.Vertical, X = Current * _voltage / _baseVoltage, MaximumY = 100000, StrokeThickness = 2, Color = _color, LineStyle = LineStyle.Dash, Text = Name };
-        }
-
-        public FaultLevelAnnotation(GraphFeature g = null) : base(g) { }
     }
 }

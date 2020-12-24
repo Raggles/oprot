@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MicroMvvm;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -52,5 +54,43 @@ namespace oprot.plot.core
             }
         }
 
+        public static string SerializeJson(object o)
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.All,
+                Formatting = Newtonsoft.Json.Formatting.Indented
+
+            };
+            return JsonConvert.SerializeObject(o, jsonSerializerSettings);
+        }
+
+        public static string SerializeBase64(object o)
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.All,
+                Formatting = Newtonsoft.Json.Formatting.Indented
+
+            };
+            var json = JsonConvert.SerializeObject(o, jsonSerializerSettings);
+            return System.Convert.ToBase64String(Util.Zip(json));
+
+        }
+    }
+
+    public class PlotDetails :ObservableObject
+    {
+        public bool AppendDescriptionToDisplayName { get; set; } = true;
+
+        public double BaseVoltage { get; set; } = 11000;
+
+        public int NumberOfSamples { get; set; } = 1000;
+
+        public double MaximumCurrent { get; set; } = 30000;
+
+
+        public double MinimumCurrent { get; set; } = 1;
+        
     }
 }

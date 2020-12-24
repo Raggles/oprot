@@ -5,27 +5,16 @@ using OxyPlot;
 
 namespace oprot.plot.core
 {
-    public class CDGCharacteristic : ProtectionCharacteristic
+    public class CDGCharacteristic : FixedMarginCharacteristic
     {
-        private double _plugSetting = 1.0;
+        //private double _plugSetting = 1.0;
         private double _timeSetting = 1.0;
-        private double _ctRatio = 400;
+        //private double _ctRatio = 400;
 
         private Dictionary<double, Point[]> _points = new Dictionary<double, Point[]>();
         private Dictionary<double, DataInterpolator> _data = new Dictionary<double, DataInterpolator>();
 
-        public double PlugSetting
-        {
-            get
-            {
-                return _plugSetting;
-            }
-            set
-            {
-                _plugSetting = value;
-                RaisePropertyChanged(nameof(PlugSetting));
-            }
-        }
+        public double PlugSetting { get; set; }
 
         public double TimeSetting
         {
@@ -42,20 +31,7 @@ namespace oprot.plot.core
             }
         }
 
-        public double CTRatio
-        {
-            get
-            {
-                return _ctRatio;
-            }
-            set
-            {
-                _ctRatio = value;
-                RaisePropertyChanged(nameof(CTRatio));
-            }
-        }
-
-        public override OxyColor Color { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public double CTRatio { get; set; }
 
         public CDGCharacteristic(string filename)
         {
@@ -73,7 +49,7 @@ namespace oprot.plot.core
 
         public override double Curve(double d)
         {
-            double pickup = d / _ctRatio;
+            double pickup = d / CTRatio;
 
             if (_data.ContainsKey(_timeSetting))
             {
@@ -103,9 +79,12 @@ namespace oprot.plot.core
             return Math.Ceiling(i * power) / power;
         }
 
-        public override PlotElement GetPlotElement()
+        
+        protected override PlotElement GetPlotElement()
         {
             throw new NotImplementedException();
         }
+        
+
     }
 }

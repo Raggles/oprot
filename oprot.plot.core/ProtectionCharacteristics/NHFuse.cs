@@ -6,11 +6,11 @@ namespace oprot.plot.core
 {
     public class NHFuse : FuseSingleCharacteristic
     {
-        public NHFuse(GraphFeature g = null) : base(@".\Curves\Bussmann NH LV Fuse 690V.txt", g) { }
+        public NHFuse() : base(@".\Curves\Bussmann NH LV Fuse 690V.txt") { }
 
         public override string ToString()
         {
-            return $" (NH gG/gL {FuseSize})";
+            return $"NH gG/gL {FuseSize}";
         }
     }
 }

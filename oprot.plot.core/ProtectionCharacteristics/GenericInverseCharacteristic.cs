@@ -1,10 +1,11 @@
 ﻿using System;
 using MicroMvvm;
 using OxyPlot;
+using PropertyChanged;
 
 namespace oprot.plot.core
 {
-    public abstract class GenericInverseCharacteristic : ProtectionCharacteristic
+    public abstract class GenericInverseCharacteristic : FixedMarginCharacteristic
     {
         protected double _tms = 1;
         protected double _pickup = 100;
@@ -14,23 +15,7 @@ namespace oprot.plot.core
         protected double _minTripHardLimit = 0.01;
         protected double _minTripMultiplier = 1.0;
 
-        public override OxyColor Color
-        {
-            get
-            {
-                return _plotElement == null ? _color : ((LogFunctionSeries)_plotElement).ActualColor;
-            }
-            set
-            {
-                _color = value;
-                if (_plotElement != null)
-                    ((LogFunctionSeries)_plotElement).Color = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(DisplayColor));
-                RaiseGraphElementInvalidated();
-            }
-        }
-
+        [AlsoNotifyFor(nameof(Description))]
         public double TMS
         {
             get
@@ -40,12 +25,11 @@ namespace oprot.plot.core
             set
             {
                 _tms = value;
-                RaisePropertyChanged(nameof(TMS));
-                RaisePropertyChanged(nameof(Description));
-                UpdateGraphElement();
+                RaiseFeatureChanged();
             }
         }
 
+        [AlsoNotifyFor(nameof(Description))]
         public double Pickup
         {
             get
@@ -55,9 +39,7 @@ namespace oprot.plot.core
             set
             {
                 _pickup = value;
-                RaisePropertyChanged(nameof(Pickup));
-                RaisePropertyChanged(nameof(Description));
-                UpdateGraphElement();
+                RaiseFeatureChanged();
             }
         }
 
@@ -70,8 +52,7 @@ namespace oprot.plot.core
             set
             {
                 _maxTripTime = value;
-                RaisePropertyChanged(nameof(MaxTripTime));
-                UpdateGraphElement();
+                RaiseFeatureChanged();
             }
         }
 
@@ -84,8 +65,7 @@ namespace oprot.plot.core
             set
             {
                 _hiSet = value;
-                RaisePropertyChanged(nameof(HiSetPickup));
-                UpdateGraphElement();
+                RaiseFeatureChanged();
             }
         }
 
@@ -98,20 +78,21 @@ namespace oprot.plot.core
             set
             {
                 _minTripMultiplier = value;
-                RaisePropertyChanged(nameof(MinTripMultiplier));
-                UpdateGraphElement();
+                RaiseFeatureChanged();
             }
         }
 
         public GenericInverseCharacteristic() : base() { }
 
-        public GenericInverseCharacteristic(GraphFeature g) : base(g) {
-            if (g is GenericInverseCharacteristic g2)
+        protected override void PretendCopyConstructor(GraphableFeature f)
+        {
+            base.PretendCopyConstructor(f);
+            if (f is GenericInverseCharacteristic c2)
             {
-                _tms = g2.TMS;
-                _pickup = g2.Pickup;
-                _hiSet = g2.HiSetPickup;
-                _maxTripTime = g2.MaxTripTime;
+                _tms = c2.TMS;
+                _pickup = c2.Pickup;
+                _hiSet = c2.HiSetPickup;
+                _maxTripTime = c2.MaxTripTime;
             }
         }
         
@@ -143,48 +124,15 @@ namespace oprot.plot.core
             return tripTime;
         }
 
-        public override PlotElement GetPlotElement()
+        
+        protected override PlotElement GetPlotElement()
         {
-            var s = new LogFunctionSeries(Curve, _minimumCurrent, _maximumCurrent, _numberSamples, DisplayName, DiscriminationMargin, _tempMultiplier * _baseVoltage / _voltage);
+            var s = new LogFunctionSeries(Curve, PlotParameters.MinimumCurrent, PlotParameters.MaximumCurrent, PlotParameters.NumberOfSamples, DisplayName, DiscriminationMargin, TempMultiplier* PlotParameters.BaseVoltage/ Voltage);
             s.ShowDiscriminationMargin = ShowDiscriminationMargin;
-            s.Color = _color;
-            if (_tempMultiplier != 1.0)
+            s.Color = this.Color;
+            if (TempMultiplier != 1.0)
                 s.LineStyle = LineStyle.Dash;
             return s;
-        }
-
-        private bool _showDiscriminationMargin = true;
-        private double _discriminationMargin = 0.2;        
-
-        public bool ShowDiscriminationMargin
-        {
-            get
-            {
-                return _showDiscriminationMargin;
-            }
-            set
-            {
-                _showDiscriminationMargin = value;
-                ((LogFunctionSeries)_plotElement).ShowDiscriminationMargin = value;
-                RaiseGraphElementInvalidated();
-                RaisePropertyChanged(nameof(ShowDiscriminationMargin));
-            }
-        }
-
-        public double DiscriminationMargin
-        {
-            get
-            {
-                return _discriminationMargin;
-            }
-            set
-            {
-                if (value < 0.01 || value > 1)
-                    return;
-                _discriminationMargin = value;
-                RaisePropertyChanged(nameof(DiscriminationMargin));
-                UpdateGraphElement();
-            }
-        }
+        }     
     }
 }
