@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using OxyPlot;
+using PropertyChanged;
 
 namespace oprot.plot.core
 {
@@ -9,8 +9,8 @@ namespace oprot.plot.core
     {
         public List<string> FuseSizes { get; set; } = new List<string>();
         private Dictionary<string, DataInterpolator> _mapping = new Dictionary<string, DataInterpolator>();
-        //private string _fuseSize;
 
+        [AlsoNotifyFor(nameof(Description), nameof(DisplayName))]
         public string FuseSize { get; set; }
         
         

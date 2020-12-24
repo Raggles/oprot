@@ -12,7 +12,7 @@ namespace oprot.plot.core
     public abstract class GraphableFeature :ObservableObject
     {
         protected PlotElement _plotElement;
-
+        protected PlotDetails _plotDetails;
         public double TempMultiplier { get; set; } = 1.0;
 
         public double Voltage { get; set; } = 11000;
@@ -22,7 +22,18 @@ namespace oprot.plot.core
         public OxyColor Color { get; set; } = OxyColors.Undefined;
 
         [JsonIgnore]
-        public PlotDetails PlotParameters { get; set; } = new PlotDetails();
+        public PlotDetails PlotParameters
+        {
+            get
+            {
+                return _plotDetails;
+            }
+            set
+            {
+                _plotDetails = value;
+                _plotDetails.PropertyChanged += GraphableFeature_PropertyChanged;
+            }
+        }
 
         [JsonIgnore]
         public string Description => $"{this}";
@@ -57,6 +68,7 @@ namespace oprot.plot.core
 
         public GraphableFeature() {
             this.PropertyChanged += GraphableFeature_PropertyChanged;
+            PlotParameters = new PlotDetails();
         }
 
         private void GraphableFeature_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

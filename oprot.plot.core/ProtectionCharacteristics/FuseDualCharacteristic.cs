@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OxyPlot;
+using PropertyChanged;
 
 namespace oprot.plot.core
 {
@@ -20,6 +21,7 @@ namespace oprot.plot.core
 
         public FuseCurveType FuseCurve { get; set; }
 
+        [AlsoNotifyFor(nameof(Description), nameof(DisplayName))]
         public string FuseSize { get; set; }
 
         public FuseDualCharacteristic(string meltingFile, string clearingFile)

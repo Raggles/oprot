@@ -81,7 +81,7 @@ namespace oprot.plot.core
             GraphFeatureInvalidated = null;
 
             Feature = (GraphableFeature)Feature.Clone();
-            Feature.PropertyChanged += _curveObject_PropertyChanged;
+            Feature.FeatureChanged += _curveObject_PropertyChanged;
         }
         
 
@@ -96,7 +96,7 @@ namespace oprot.plot.core
             GraphFeatureInvalidated?.Invoke();
         }
 
-        private void _curveObject_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void _curveObject_PropertyChanged()
         {
             RaiseFeatureChanged();
         }
@@ -162,7 +162,7 @@ namespace oprot.plot.core
                     Feature = GraphableFeature.FromOther<FaultLevelAnnotation>(Feature);
                     break;
             }
-            Feature.PropertyChanged += _curveObject_PropertyChanged;
+            Feature.FeatureChanged += _curveObject_PropertyChanged;
         }
 
     }

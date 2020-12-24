@@ -23,8 +23,35 @@ namespace oprot.plot.core
         private double _maxTripTimeHardLimit = 1e6;
         private double _minTripHardLimit = 0.01;
 
-        public FuseDualCharacteristic Fuse { get; set; }
-        
+        public FuseDualCharacteristic Fuse
+        {
+            get
+            {
+                return _fuseobject;
+            }
+            set
+            {
+                _fuseobject = value;
+                _fuseobject.FeatureChanged += _fuseobject_FeatureChanged;
+                _fuseobject.PropertyChanged += _fuseobject_PropertyChanged;
+            }
+        }
+
+        private void _fuseobject_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Description))
+            {
+                RaisePropertyChanged(e.PropertyName);
+                RaisePropertyChanged(nameof(DisplayName));
+            }
+        }
+
+        private void _fuseobject_FeatureChanged()
+        {
+            _plotElement = null;
+            RaiseFeatureChanged();
+        }
+
         public double MaxTripTime { get; set; }
       
 
@@ -61,9 +88,14 @@ namespace oprot.plot.core
         {
             get
             {
-                string r = _fuseobject.FuseSize.TrimEnd(new char[] { 'T', 'K' });
+                string r = Fuse.FuseSize.TrimEnd(new char[] { 'T', 'K' });
                 return double.Parse(r);
             }
+        }
+
+        public FuseSaver()
+        {
+            Fuse = new SandCFuseT();
         }
 
         protected override void PretendCopyConstructor(GraphableFeature g)
@@ -72,19 +104,19 @@ namespace oprot.plot.core
             if (g is FuseSaver g2)
             {
                 _fuseenum = g2.FuseType;
-                _fuseobject = g2.Fuse.Clone() as FuseDualCharacteristic;
+                Fuse = g2.Fuse.Clone() as FuseDualCharacteristic;
                 
                 _hiSet = g2.HiSetMul;
                 _maxTripTime = g2.MaxTripTime;
                 _minTripMultiplier = g2.MinTripMultiplier;
             }
-            if (_fuseobject == null)
+            if (Fuse == null)
                     FuseType = _fuseenum;
         }
 
         public override double Curve(double d)
         {
-            if (!_i2tDict.ContainsKey(_fuseobject.FuseSize)){
+            if (!_i2tDict.ContainsKey(Fuse.FuseSize)){
                 return double.NaN;
             }
             double p = Pickup;
@@ -92,7 +124,7 @@ namespace oprot.plot.core
                 return 0.01;
             if (d < p * _minTripMultiplier)
                 return _maxTripTimeHardLimit;
-            double tripTime = 0.33 * _i2tDict[_fuseobject.FuseSize] / Math.Pow(d,2);
+            double tripTime = 0.33 * _i2tDict[Fuse.FuseSize] / Math.Pow(d,2);
             if (tripTime > _maxTripTime)
                 return _maxTripTime;
             if (tripTime > _maxTripTimeHardLimit)
@@ -105,7 +137,7 @@ namespace oprot.plot.core
         
         public override string ToString()
         {
-            return Fuse.ToString();
+            return Fuse?.ToString();
         }
 
         private Dictionary<string, double> _i2tDict = new Dictionary<string, double>() {
