@@ -347,6 +347,8 @@
                                         </ListBox>
                                         <Expander.ContextMenu>
                                             <ContextMenu>
+                                                <MenuItem Header="Sort" Command="{Binding Path=DataContext.Sort, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />
+                                                <MenuItem Header="Hidden" IsCheckable="True" IsChecked="{Binding Hidden}"/>
                                                 <MenuItem Header="Delete Group" Command="{Binding Path=DataContext.DeleteGroup, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />
                                                 <MenuItem Header="Rename Group" Command="{Binding Path=DataContext.RenameGroup, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />
                                                 <MenuItem Header="Duplicate Group" Command="{Binding Path=DataContext.DuplicateGroup, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />

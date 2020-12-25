@@ -14,6 +14,7 @@ using System.Windows.Data;
 using System.Globalization;
 using Microsoft.Win32;
 using System.IO;
+using System.Linq;
 
 namespace oprot.plot.wpf
 {
@@ -639,6 +640,36 @@ namespace oprot.plot.wpf
         [JsonIgnore]
         public ICommand ExoprtImage { get { return new MicroMvvm.RelayCommand<FeatureGroup>(ExoprtImageExecute, CanExoprtImageExecute); } }
         #endregion
+
+        #region Sort Command
+        void SortExecute(FeatureGroup f)
+        {
+            try
+            {
+                List<ProtectionCharacteristic> l = (from i in SelectedGroup.Features where i.Feature is ProtectionCharacteristic select (ProtectionCharacteristic)i.Feature).ToList();
+                l.Sort();
+                string s = "";
+                for (int i = 0; i < l.Count; i++)
+                {
+                    s += l[i].Name + Environment.NewLine;
+                }
+                MessageBox.Show(s);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        bool CanSortExecute(FeatureGroup f)
+        {
+            return true;
+        }
+
+        [JsonIgnore]
+        public ICommand Sort { get { return new MicroMvvm.RelayCommand<FeatureGroup>(SortExecute, CanSortExecute); } }
+        #endregion
+
 
         #endregion
         public void OnDeserialize()
