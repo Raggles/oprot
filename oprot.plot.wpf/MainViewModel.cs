@@ -641,18 +641,25 @@ namespace oprot.plot.wpf
         public ICommand ExoprtImage { get { return new MicroMvvm.RelayCommand<FeatureGroup>(ExoprtImageExecute, CanExoprtImageExecute); } }
         #endregion
 
-        #region Sort Command
-        void SortExecute(FeatureGroup f)
+        #region Grader Command
+        void GraderExecute(FeatureGroup f)
         {
             try
             {
                 List<ProtectionCharacteristic> l = (from i in SelectedGroup.Features where i.Feature is ProtectionCharacteristic select (ProtectionCharacteristic)i.Feature).ToList();
                 l.Sort();
-                string s = "";
+                var r = Grader.Grade(l);
+                string s = $"Grading Order (slowest>fastest):{Environment.NewLine}";
                 for (int i = 0; i < l.Count; i++)
                 {
-                    s += l[i].Name + Environment.NewLine;
+                    s += "  -" + l[i].Name + Environment.NewLine;
                 }
+                foreach (var result in r)
+                {
+                    s += result.ToString() + Environment.NewLine;
+                }
+                
+                
                 MessageBox.Show(s);
             }
             catch (Exception ex)
@@ -661,13 +668,13 @@ namespace oprot.plot.wpf
             }
         }
 
-        bool CanSortExecute(FeatureGroup f)
+        bool CanGraderExecute(FeatureGroup f)
         {
-            return true;
+            return f?.Features.Count > 1;
         }
 
         [JsonIgnore]
-        public ICommand Sort { get { return new MicroMvvm.RelayCommand<FeatureGroup>(SortExecute, CanSortExecute); } }
+        public ICommand AutoGrader { get { return new MicroMvvm.RelayCommand<FeatureGroup>(GraderExecute, CanGraderExecute); } }
         #endregion
 
 

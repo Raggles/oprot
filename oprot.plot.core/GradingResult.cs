@@ -6,12 +6,32 @@ namespace oprot.plot.core
 {
     public class GradingResult
     {
-        public ProtectionCharacteristic Curve1 { get; }
-        public ProtectionCharacteristic Cirve2 { get; }
-        public List<Point> NonGradingSections { get; }
+        public ProtectionCharacteristic Curve1 { get; set; }
+        public ProtectionCharacteristic Curve2 { get; set; }
+        public List<GradingSection> Sections { get; set; } = new List<GradingSection>();
+        public bool Grades => Sections.Count != 0;
         public override string ToString()
         {
-            return "";
+            string g = Grades ? "grade" : "don't grade";
+            string r = $"[{Curve1.Name}] (fast) and [{Curve2.Name}] (slow) {g}:";
+            foreach (var s in Sections)
+            {
+                r += Environment.NewLine + "  -" + s.ToString();                    
+            }
+            return r;
+        }
+    }
+
+    public struct GradingSection
+    {
+        public double From;
+        public double To;
+        public bool Grades;
+
+        public override string ToString()
+        {
+            var g = Grades ? "Grades" : "Doesn't grade";
+            return $"{g} from {From}A to {To}A";
         }
     }
 }

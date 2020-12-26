@@ -347,7 +347,7 @@
                                         </ListBox>
                                         <Expander.ContextMenu>
                                             <ContextMenu>
-                                                <MenuItem Header="Sort" Command="{Binding Path=DataContext.Sort, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />
+                                                <MenuItem Header="Grader" Command="{Binding Path=DataContext.AutoGrader, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />
                                                 <MenuItem Header="Hidden" IsCheckable="True" IsChecked="{Binding Hidden}"/>
                                                 <MenuItem Header="Delete Group" Command="{Binding Path=DataContext.DeleteGroup, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />
                                                 <MenuItem Header="Rename Group" Command="{Binding Path=DataContext.RenameGroup, Source={x:Reference mainWindow}}" CommandParameter="{Binding}" />
