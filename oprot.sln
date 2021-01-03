@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "oprot.plot.core", "oprot.plot.core\oprot.plot.core.csproj", "{5C347DE1-EC5F-4DE3-91A4-E06EB462F91D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oprot.plot.wpf", "oprot.plot.wpf\oprot.plot.wpf.csproj", "{99408168-A4EF-48F1-9212-21A98A5E3BBD}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "oprot.database.core", "oprot.database.core\oprot.database.core.csproj", "{2153464A-5916-4BD0-A3DA-8B0F2F5364C6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oprot.database.viewer", "oprot.database.viewer\oprot.database.viewer.csproj", "{43832EF5-0440-4547-A4C2-41102BDA5B8F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "oprot.plot.core", "oprot.plot.core\oprot.plot.core.csproj", "{9251D30E-E2A8-425C-A73A-EC697B70A0E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "oprot.plot.wpf", "oprot.plot.wpf\oprot.plot.wpf.csproj", "{336440DC-CDA7-4962-9E20-04E717E21437}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,14 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5C347DE1-EC5F-4DE3-91A4-E06EB462F91D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5C347DE1-EC5F-4DE3-91A4-E06EB462F91D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5C347DE1-EC5F-4DE3-91A4-E06EB462F91D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5C347DE1-EC5F-4DE3-91A4-E06EB462F91D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{99408168-A4EF-48F1-9212-21A98A5E3BBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{99408168-A4EF-48F1-9212-21A98A5E3BBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{99408168-A4EF-48F1-9212-21A98A5E3BBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{99408168-A4EF-48F1-9212-21A98A5E3BBD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2153464A-5916-4BD0-A3DA-8B0F2F5364C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2153464A-5916-4BD0-A3DA-8B0F2F5364C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2153464A-5916-4BD0-A3DA-8B0F2F5364C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -33,6 +25,14 @@ Global
 		{43832EF5-0440-4547-A4C2-41102BDA5B8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43832EF5-0440-4547-A4C2-41102BDA5B8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43832EF5-0440-4547-A4C2-41102BDA5B8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9251D30E-E2A8-425C-A73A-EC697B70A0E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9251D30E-E2A8-425C-A73A-EC697B70A0E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9251D30E-E2A8-425C-A73A-EC697B70A0E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9251D30E-E2A8-425C-A73A-EC697B70A0E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{336440DC-CDA7-4962-9E20-04E717E21437}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{336440DC-CDA7-4962-9E20-04E717E21437}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{336440DC-CDA7-4962-9E20-04E717E21437}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{336440DC-CDA7-4962-9E20-04E717E21437}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

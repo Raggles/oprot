@@ -6,10 +6,10 @@ namespace oprot.plot.core
 {
     public class GradingResult
     {
-        public ProtectionCharacteristic Curve1 { get; set; }
+        public ProtectionCharacteristic Curve1 { get; init; }
         public ProtectionCharacteristic Curve2 { get; set; }
         public List<GradingSection> Sections { get; set; } = new List<GradingSection>();
-        public bool Grades => Sections.Count != 0;
+        public bool Grades => Sections.Count == 1;
         public override string ToString()
         {
             string g = Grades ? "grade" : "don't grade";

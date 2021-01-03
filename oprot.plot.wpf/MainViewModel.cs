@@ -48,6 +48,9 @@ namespace oprot.plot.wpf
         public ObservableCollection<GraphFeature> Features { get; set; } = new ObservableCollection<GraphFeature>();
         public bool Hidden { get; set; } = false;
         public bool Expanded { get; set; }
+
+        //used to trigger regrading of curves
+        public event Action MemberCurveChanged;
     }
 
     public class MainViewModel : ObservableObject
@@ -85,7 +88,7 @@ namespace oprot.plot.wpf
 
         public ObservableCollection<FeatureGroup> Groups { get; set; } = new ObservableCollection<FeatureGroup>();
 
-        public double XMin {get;set;}
+        public double XMin { get; set; }
         public double XMax { get; set; }
         public double YMin { get; set; }
         public double YMax { get; set; }
@@ -93,16 +96,18 @@ namespace oprot.plot.wpf
         [JsonIgnore]
         public PlotModel ProtectionPlot { get; private set; }
 
-        public GraphFeature SelectedFeature { get; set; }    
+        [JsonIgnore]
+        public GraphFeature SelectedFeature { get; set; }
 
+        [JsonIgnore]
         public FeatureGroup SelectedGroup { get; set; }
 
         public MainViewModel()
         {
             PlotDetails.PropertyChanged += PlotDetails_PropertyChanged;
             ProtectionPlot = new PlotModel { Title = "Protection Plot" };
-            ProtectionPlot.Axes.Add(new LogarithmicAxis() { Position = AxisPosition.Bottom, Minimum = 100, Maximum = 10000, MajorGridlineStyle = LineStyle.Solid, Title = "Current (A)", AbsoluteMaximum=100e3, AbsoluteMinimum=0.01 });
-            ProtectionPlot.Axes.Add(new LogarithmicAxis() { Position = AxisPosition.Left, Minimum = 0.01, Maximum = 100, MajorGridlineStyle = LineStyle.Solid, Title = "Time (s)", AbsoluteMaximum = 1e5, AbsoluteMinimum=0.1 });
+            ProtectionPlot.Axes.Add(new LogarithmicAxis() { Position = AxisPosition.Bottom, Minimum = 100, Maximum = 10000, MajorGridlineStyle = LineStyle.Solid, Title = "Current (A)", AbsoluteMaximum = 100e3, AbsoluteMinimum = 0.01 });
+            ProtectionPlot.Axes.Add(new LogarithmicAxis() { Position = AxisPosition.Left, Minimum = 0.01, Maximum = 100, MajorGridlineStyle = LineStyle.Solid, Title = "Time (s)", AbsoluteMaximum = 1e5, AbsoluteMinimum = 0.1 });
         }
 
         private void PlotDetails_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -113,16 +118,37 @@ namespace oprot.plot.wpf
         public GraphFeature AddNewFeature(FeatureGroup g, GraphFeature newFeature = null, int position = -1)
         {
             if (newFeature == null)
-                newFeature = new GraphFeature();
-            newFeature.Feature.PlotParameters = PlotDetails;
-            newFeature.Feature.Color = _defaultColors[_colourIndex++ % _defaultColors.Count];
-            newFeature.GraphFeatureChanged += Redraw;
+            {
+                newFeature = CreateNewFeature();
+            }
+            return AddTheFeature(g, newFeature, position);
+        }
+
+        /// <summary>
+        /// Create a new default feature
+        /// </summary>
+        /// <returns></returns>
+        private GraphFeature CreateNewFeature()
+        {
+            return CreateNewFeature(new IECStandardInverse() { Color = _defaultColors[_colourIndex++ % _defaultColors.Count] }, GraphFeatureKind.IECStandardInverse);
+        }
+
+        private GraphFeature CreateNewFeature(GraphableFeature f, GraphFeatureKind k)
+        {
+            GraphFeature g = new GraphFeature(f, k);
+            g.GraphFeatureChanged += Redraw;
+            g.Feature.PlotParameters = PlotDetails;
+            return g;
+        }
+
+        private GraphFeature AddTheFeature(FeatureGroup g, GraphFeature newFeature, int position = -1)
+        {
             g.Features.Add(newFeature);
             if (position >= 0 && position < g.Features.Count - 1)
             {
                 g.Features.Move(g.Features.Count - 1, position);
             }
-            
+
             if (newFeature.Feature.GraphElement is Annotation)
             {
                 ProtectionPlot.Annotations.Add(newFeature.Feature.GraphElement as Annotation);
@@ -145,22 +171,22 @@ namespace oprot.plot.wpf
             ProtectionPlot.Series.Clear();
             ProtectionPlot.Annotations.Clear();
             foreach (var g in Groups)
-            foreach (var feature in g.Features)
-            {
-                if (!feature.Feature.Hidden)
+                foreach (var feature in g.Features)
                 {
-
-                    if (feature.Feature.GraphElement is Annotation)
+                    if (!feature.Feature.Hidden)
                     {
-                        ProtectionPlot.Annotations.Add(feature.Feature.GraphElement as Annotation);
-                    }
-                    else
-                    {
-                        ProtectionPlot.Series.Add(feature.Feature.GraphElement as LineSeries);
-                    }
 
+                        if (feature.Feature.GraphElement is Annotation)
+                        {
+                            ProtectionPlot.Annotations.Add(feature.Feature.GraphElement as Annotation);
+                        }
+                        else
+                        {
+                            ProtectionPlot.Series.Add(feature.Feature.GraphElement as LineSeries);
+                        }
+
+                    }
                 }
-            }           
             ProtectionPlot.InvalidatePlot(false);
         }
 
@@ -224,6 +250,7 @@ namespace oprot.plot.wpf
                 return;
             try
             {
+                /* TODO:
                 System.Windows.Forms.ColorDialog colorDialog = new System.Windows.Forms.ColorDialog();
                 colorDialog.Color = System.Drawing.Color.FromArgb(f.Feature.Color.A, f.Feature.Color.R, f.Feature.Color.G, f.Feature.Color.B);
                 colorDialog.AllowFullOpen = true;
@@ -232,6 +259,7 @@ namespace oprot.plot.wpf
                 {
                     f.Feature.Color = OxyColor.FromArgb(colorDialog.Color.A, colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B);
                 };
+                */
             }
             catch { }
         }
@@ -309,7 +337,7 @@ namespace oprot.plot.wpf
 
                 };
                 var json = JsonConvert.SerializeObject(f, jsonSerializerSettings);
-                Clipboard.SetText(json);               
+                Clipboard.SetText(json);
             }
             catch (Exception ex)
             {
@@ -338,7 +366,7 @@ namespace oprot.plot.wpf
 
                 };
                 var json = JsonConvert.SerializeObject(f, jsonSerializerSettings);
-                var b64 =  System.Convert.ToBase64String(Util.Zip(json));
+                var b64 = System.Convert.ToBase64String(Util.Zip(json));
                 Clipboard.SetText(b64);
             }
             catch (Exception ex)
@@ -354,7 +382,7 @@ namespace oprot.plot.wpf
 
         [JsonIgnore]
         public ICommand CopyFeatureBase64 { get { return new MicroMvvm.RelayCommand<GraphFeature>(CopyFeatureBase64Execute, CanCopyFeatureBase64Execute); } }
-#endregion
+        #endregion
 
         #region Paste Feature Command
         void PasteFeatureExecute(GraphFeature f)
@@ -464,7 +492,7 @@ namespace oprot.plot.wpf
             try
             {
                 var g = new FeatureGroup() { Expanded = true };
-                Groups.Add(g) ;
+                Groups.Add(g);
                 SelectedGroup = g;
             }
             catch (Exception ex)
@@ -658,8 +686,11 @@ namespace oprot.plot.wpf
                 {
                     s += result.ToString() + Environment.NewLine;
                 }
-                
-                
+
+                var nf = CreateNewFeature(new GradingHighlighter() { Color = OxyColors.Red, Name = "Grading Result", Result = r, PlotParameters = PlotDetails }, GraphFeatureKind.GradingResult);
+                AddNewFeature(SelectedGroup, nf);
+
+
                 MessageBox.Show(s);
             }
             catch (Exception ex)
@@ -682,9 +713,12 @@ namespace oprot.plot.wpf
         public void OnDeserialize()
         {
             foreach (var g in Groups)
-            foreach(var feature in g.Features)
             {
-                feature.GraphFeatureChanged += Redraw;
+                foreach (var feature in g.Features)
+                {
+                    feature.OnDeserialize();
+                    feature.GraphFeatureChanged += Redraw;
+                }
             }
             ProtectionPlot.Axes[0].Zoom(XMin, XMax);
             ProtectionPlot.Axes[1].Zoom(YMin, YMax);

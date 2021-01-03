@@ -11,40 +11,20 @@ using System.Windows.Input;
 
 namespace oprot.plot.core
 {
-    public enum GraphFeatureKind
-    {
-        IECStandardInverse,
-        IECVeryInverse,
-        IECExtremelyInverse,
-        IEEEModeratelyInverse,
-        IEEEVeryInverse,
-        IEEEExtremelyInverse,
-        DefiniteTime,
-        SandCPositrolFuseTypeK,
-        SandCPositrolFuseTypeT,
-        ChanceFuseTypeK,
-        ChanceFuseTypeT,
-        FaultLevelAnnotation,
-        FuseSaver,
-        TripSaver,
-        HRCKnifeFuse,
-        HRCBoltedFuse,
-        HRCMJTypeFuse,
-        NHgGFuse690V,
-        ABBCEF
-    }
     public class GraphFeature : ObservableObject
     {
         //whenever a curve parameter has changed, i.e. the plot element has been regenerated
         public event Action GraphFeatureChanged;
+        
         //whenever the plot element has not changed, but required re-rendering.
         //e.g. the discrimination margin has been enabled/disabled
+        //curently not used
         public event Action GraphFeatureInvalidated;
 
 
         private GraphFeatureKind _featureType = GraphFeatureKind.IECStandardInverse;
+        private bool _initialized = false;
 
-        
         [AlsoNotifyFor(nameof(Feature))]
         public GraphFeatureKind FeatureType
         {
@@ -54,18 +34,31 @@ namespace oprot.plot.core
             }
             set
             {
+                if (value == GraphFeatureKind.GradingResult && _initialized)
+                    return;
+                
                 _featureType = value;
-                SetNewFeature();
+
+                if (_initialized && value != GraphFeatureKind.GradingResult)
+                {
+                    SetNewFeature();
+                }
                 RaiseFeatureChanged();
             }
         }
 
+        [JsonProperty]
         public GraphableFeature Feature { get; private set; }
         
 
-        public GraphFeature()
+        public GraphFeature() {  }
+
+        public GraphFeature(GraphableFeature f, GraphFeatureKind k)
         {
-            SetNewFeature();
+            _initialized = true;
+            _featureType = k;
+            Feature = f;
+            Feature.FeatureChanged += _curveObject_PropertyChanged;
         }
 
         public object Clone()
@@ -89,11 +82,6 @@ namespace oprot.plot.core
         private void RaiseFeatureChanged()
         {
             GraphFeatureChanged?.Invoke();
-        }
-
-        private void RaiseCurveInvalidated()
-        {
-            GraphFeatureInvalidated?.Invoke();
         }
 
         private void _curveObject_PropertyChanged()
@@ -164,6 +152,15 @@ namespace oprot.plot.core
             }
             Feature.FeatureChanged += _curveObject_PropertyChanged;
         }
+
+        public void OnDeserialize()
+        {
+            Feature.FeatureChanged += _curveObject_PropertyChanged;
+            _initialized = true;
+        }
+
+
+
 
     }
 }

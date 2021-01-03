@@ -80,7 +80,8 @@ namespace oprot.plot.core
             if (this.LineLegendPosition != LineLegendPosition.None && !string.IsNullOrEmpty(this.Title))
             {
                 // renders a legend on the line
-                this.RenderLegendOnLine(rc);
+                //TODO:
+                //this.RenderLegendOnLine(rc);
             }
         }
 

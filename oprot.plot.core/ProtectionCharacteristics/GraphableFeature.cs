@@ -74,6 +74,7 @@ namespace oprot.plot.core
         private void GraphableFeature_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             _plotElement = GetPlotElement();
+          
             RaiseFeatureChanged();
         }
 

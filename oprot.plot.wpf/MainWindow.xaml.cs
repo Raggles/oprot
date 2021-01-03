@@ -65,7 +65,10 @@ namespace oprot.plot.wpf
                 OpenFileDialog d = new OpenFileDialog();
                 if (d.ShowDialog() ?? false)
                 {
-                    MainViewModel m = JsonConvert.DeserializeObject<MainViewModel>(File.ReadAllText(d.FileName));
+                    MainViewModel m = JsonConvert.DeserializeObject<MainViewModel>(File.ReadAllText(d.FileName), new JsonSerializerSettings()
+                    {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
                     DataContext = m;
                     m.OnDeserialize();
                 }

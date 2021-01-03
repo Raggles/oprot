@@ -5,9 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:oxy="http://oxyplot.org/wpf"
-        xmlns:local="clr-namespace:oprot.plot.wpf" 
+        xmlns:local="clr-namespace:oprot.plot.wpf"
         xmlns:ppcore="clr-namespace:oprot.plot.core;assembly=oprot.plot.core" 
-        xmlns:properties="clr-namespace:oprot.plot.wpf.Properties"
         mc:Ignorable="d"
         Icon="/Resources/icon.png"
         Title="oprot.plot.wpf" Height="494" Width="801" WindowState="Maximized" Loaded="Window_Loaded" x:Name="mainWindow">
@@ -204,37 +203,37 @@
             <ToolBarTray Height="50" VerticalAlignment="Top" DockPanel.Dock="Top">
                 <ToolBar Height="50">
                     <Button Click="mnuClear_Click">
-                        <Image Source="Resources/ClearIcon.png" ToolTip="Clear"/>
+                        <Image Source="/protplot;component/Resources/ClearIcon.png" ToolTip="Clear"/>
                     </Button>
                     <Button Click="mnuOpen_Click" >
-                        <Image Source="Resources/OpenIcon.png"  ToolTip="Open" />
+                        <Image Source="/protplot;component/Resources/OpenIcon.png"  ToolTip="Open" />
                     </Button>
                     <Button Command="{Binding SaveAs}" >
-                        <Image Source="Resources/SaveIcon.png" ToolTip="Save"/>
+                        <Image Source="/protplot;component/Resources/SaveIcon.png" ToolTip="Save"/>
                     </Button>
                     <Button Command="{Binding ExoprtImage}" >
-                        <Image Source="Resources/ExportImageIcon.png" ToolTip="Export to image"/>
+                        <Image Source="/protplot;component/Resources/ExportImageIcon.png" ToolTip="Export to image"/>
                     </Button>
                     <Button Click="mnuCopy_Click" >
-                        <Image Source="Resources/DuplicateIcon.png" ToolTip="Copy to clipboard"/>
+                        <Image Source="/protplot;component/Resources/DuplicateIcon.png" ToolTip="Copy to clipboard"/>
                     </Button>
                     <Button Click="mnuPrint_click" >
-                        <Image Source="Resources/Print.png" ToolTip="Print" />
+                        <Image Source="/protplot;component/Resources/Print.png" ToolTip="Print" />
                     </Button>
                     <Button Command="{Binding AddFeature}" CommandParameter="{Binding SelectedGroup}" >
-                        <Image Source="Resources/AddIcon.png" ToolTip="Add Feature"/>
+                        <Image Source="/protplot;component/Resources/AddIcon.png" ToolTip="Add Feature"/>
                     </Button>
                     <Button Command="{Binding AddGroup}" >
-                        <Image Source="Resources/AddIcon.png" ToolTip="Add Group"/>
+                        <Image Source="/protplot;component/Resources/AddIcon.png" ToolTip="Add Group"/>
                     </Button>
                     <Button Command="{Binding DeleteFeature}" CommandParameter="{Binding SelectedFeature}" >
-                        <Image Source="Resources/DeleteIcon.png" ToolTip="Delete curve"/>
+                        <Image Source="/protplot;component/Resources/DeleteIcon.png" ToolTip="Delete curve"/>
                     </Button>
                     <Button Click="mnuShowChart_Click" >
-                        <Image Source="Resources/TableIcon.png" ToolTip="Show table"/>
+                        <Image Source="/protplot;component/Resources/TableIcon.png" ToolTip="Show table"/>
                     </Button>
                     <Button Click="mnuAbout_Click" >
-                        <Image Source="Resources/AboutIcon.png" ToolTip="About" />
+                        <Image Source="/protplot;component/Resources/AboutIcon.png" ToolTip="About" />
                     </Button>
 
                 </ToolBar>

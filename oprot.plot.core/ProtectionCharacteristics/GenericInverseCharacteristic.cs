@@ -15,7 +15,8 @@ namespace oprot.plot.core
         protected double _minTripHardLimit = 0.01;
         protected double _minTripMultiplier = 1.0;
 
-        [AlsoNotifyFor(nameof(Description))]
+        [AlsoNotifyFor(nameof(Description), nameof(DisplayName))]
+
         public double TMS
         {
             get
@@ -29,7 +30,7 @@ namespace oprot.plot.core
             }
         }
 
-        [AlsoNotifyFor(nameof(Description))]
+        [AlsoNotifyFor(nameof(Description), nameof(DisplayName))]
         public double Pickup
         {
             get
@@ -89,11 +90,12 @@ namespace oprot.plot.core
             base.PretendCopyConstructor(f);
             if (f is GenericInverseCharacteristic c2)
             {
-                _tms = c2.TMS;
-                _pickup = c2.Pickup;
-                _hiSet = c2.HiSetPickup;
-                _maxTripTime = c2.MaxTripTime;
+                TMS = c2.TMS;
+                Pickup = c2.Pickup;
+                HiSetPickup = c2.HiSetPickup;
+                MaxTripTime = c2.MaxTripTime;
             }
+            RaiseFeatureChanged();
         }
         
         /// <summary>
