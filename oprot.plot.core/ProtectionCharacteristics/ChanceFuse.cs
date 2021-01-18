@@ -1,6 +1,6 @@
 ﻿namespace oprot.plot.core
 {
-    class ChanceFuseK : FuseDualCharacteristic
+    public class ChanceFuseK : FuseDualCharacteristic
     {
         public ChanceFuseK() : base(@".\Curves\ChanceMeltingK.txt", @".\Curves\ChanceClearingK.txt") { }
 
@@ -10,7 +10,7 @@
         }
     }
 
-    class ChanceFuseT : FuseDualCharacteristic
+    public class ChanceFuseT : FuseDualCharacteristic
     {
         public ChanceFuseT() : base(@".\Curves\ChanceMeltingT.txt", @".\Curves\ChanceClearingT.txt") { }
 

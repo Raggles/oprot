@@ -278,17 +278,17 @@ namespace oprot.plot.wpf
         #region Move Feature Up Command
         void MoveFeatureUpExecute(GraphFeature f)
         {
-            /*
+            
             try
             {
-                int i = Features.IndexOf(f);
+                int i = SelectedGroup.Features.IndexOf(f);
                 if (i > 0)
-                    Features.Move(i, i - 1);
+                    SelectedGroup.Features.Move(i, i - 1);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
-            }*/
+            }
         }
 
         bool CanMoveFeatureUpExecute(GraphFeature f)
@@ -302,18 +302,17 @@ namespace oprot.plot.wpf
 
         #region Move Feature Down Command
         void MoveFeatureDownExecute(GraphFeature f)
-        { /*
-           * TODO
+        { 
             try
             {
-                int i = Features.IndexOf(f);
-                if (i < Features.Count -1)
-                    Features.Move(i, i + 1);
+                int i = SelectedGroup.Features.IndexOf(f);
+                if (i < SelectedGroup.Features.Count -1)
+                    SelectedGroup.Features.Move(i, i + 1);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
-            }*/
+            }
         }
 
         bool CanMoveFeatureDownExecute(GraphFeature f)
@@ -708,7 +707,7 @@ namespace oprot.plot.wpf
         public ICommand AutoGrader { get { return new MicroMvvm.RelayCommand<FeatureGroup>(GraderExecute, CanGraderExecute); } }
         #endregion
 
-
+        
         #endregion
         public void OnDeserialize()
         {

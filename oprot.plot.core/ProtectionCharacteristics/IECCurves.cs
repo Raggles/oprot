@@ -6,7 +6,7 @@ namespace oprot.plot.core
     {
         protected override double CurveEquation(double d)
         {
-            return _tms * 0.14 / (Math.Pow(d / _pickup, 0.02) - 1);
+            return TMS * 0.14 / (Math.Pow(d / Pickup, 0.02) - 1);
         }
 
         public override string ToString()
@@ -19,7 +19,7 @@ namespace oprot.plot.core
     {
         protected override double CurveEquation(double d)
         {
-            return _tms * 13.5 / ((d / _pickup) - 1);
+            return TMS * 13.5 / ((d / Pickup) - 1);
         }
 
         public override string ToString()
@@ -32,7 +32,7 @@ namespace oprot.plot.core
     {
         protected override double CurveEquation(double d)
         {
-            return _tms * 80 / (Math.Pow(d / _pickup, 2.0) - 1);
+            return TMS * 80 / (Math.Pow(d / Pickup, 2.0) - 1);
         }
 
         public override string ToString()
@@ -46,7 +46,7 @@ namespace oprot.plot.core
     {
         protected override double CurveEquation(double d)
         {
-            return _tms * 120 / ((d / _pickup) - 1);
+            return TMS * 120 / ((d / Pickup) - 1);
         }
 
         public override string ToString()

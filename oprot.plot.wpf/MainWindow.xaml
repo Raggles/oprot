@@ -296,10 +296,10 @@
                             <Grid>
                                 <Label Content="Temp Mult:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
                                 <TextBox HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="40" Height="20" Text="{Binding Feature.TempMultiplier}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" />
-                                <Button Margin="121,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="1.0" Command="{Binding Feature.SetTempMultiplier}" CommandParameter="1.0" />
-                                <Button Margin="151,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="0.5" Command="{Binding Feature.SetTempMultiplier}" CommandParameter="0.5" />
-                                <Button Margin="181,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="1.16" Command="{Binding Feature.SetTempMultiplier}" CommandParameter="1.16" />
-                                <Button Margin="211,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="0.58" Command="{Binding Feature.SetTempMultiplier}" CommandParameter="0.58" />
+                                <Button Margin="121,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="1.0" Command="{Binding SetTempMultiplier}" CommandParameter="1.0" />
+                                <Button Margin="151,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="0.5" Command="{Binding SetTempMultiplier}" CommandParameter="0.5" />
+                                <Button Margin="181,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="1.16" Command="{Binding SetTempMultiplier}" CommandParameter="1.16" />
+                                <Button Margin="211,2,0,4.8" Width="28" HorizontalAlignment="Left" Content="0.58" Command="{Binding SetTempMultiplier}" CommandParameter="0.58" />
                             </Grid>
 
                             <Grid>

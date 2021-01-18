@@ -1,15 +1,11 @@
 ﻿using MicroMvvm;
 using Newtonsoft.Json;
-using OxyPlot;
 using PropertyChanged;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows.Input;
+using oprot.plot.core;
 
-namespace oprot.plot.core
+namespace oprot.plot.wpf
 {
     public class GraphFeature : ObservableObject
     {
@@ -159,7 +155,22 @@ namespace oprot.plot.core
             _initialized = true;
         }
 
+        #region SetTempMultiplierCommand
 
+        void SetTempMultiplierExecute(object d)
+        {
+            Feature.TempMultiplier = double.Parse(d.ToString());
+        }
+
+        bool CanSetTempMultiplierExecute(object d)
+        {
+            return true;
+        }
+
+        [JsonIgnore]
+        public ICommand SetTempMultiplier { get { return new oprot.plot.core.RelayCommand<object>(SetTempMultiplierExecute, CanSetTempMultiplierExecute); } }
+
+        #endregion
 
 
     }

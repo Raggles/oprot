@@ -7,84 +7,26 @@ namespace oprot.plot.core
 {
     public abstract class GenericInverseCharacteristic : FixedMarginCharacteristic
     {
-        protected double _tms = 1;
-        protected double _pickup = 100;
-        protected double _maxTripTime = double.PositiveInfinity;
+        //TODO: make these global settings?
         protected double _maxTripTimeHardLimit = 1e6;
-        protected double _hiSet = double.PositiveInfinity;
         protected double _minTripHardLimit = 0.01;
-        protected double _minTripMultiplier = 1.0;
 
         [AlsoNotifyFor(nameof(Description), nameof(DisplayName))]
-
-        public double TMS
-        {
-            get
-            {
-                return _tms;
-            }
-            set
-            {
-                _tms = value;
-                RaiseFeatureChanged();
-            }
-        }
+        public double TMS { get; set; } = 1;
 
         [AlsoNotifyFor(nameof(Description), nameof(DisplayName))]
-        public double Pickup
-        {
-            get
-            {
-                return _pickup;
-            }
-            set
-            {
-                _pickup = value;
-                RaiseFeatureChanged();
-            }
-        }
+        public double Pickup { get; set; } = 100;
 
-        public double MaxTripTime
-        {
-            get
-            {
-                return _maxTripTime;
-            }
-            set
-            {
-                _maxTripTime = value;
-                RaiseFeatureChanged();
-            }
-        }
+        public double MaxTripTime { get; set; } = double.PositiveInfinity;
 
-        public double HiSetPickup
-        {
-            get
-            {
-                return _hiSet;
-            }
-            set
-            {
-                _hiSet = value;
-                RaiseFeatureChanged();
-            }
-        }
+        public double HiSetPickup { get; set; } = double.PositiveInfinity;
 
-        public double MinTripMultiplier
-        {
-            get
-            {
-                return _minTripMultiplier;
-            }
-            set
-            {
-                _minTripMultiplier = value;
-                RaiseFeatureChanged();
-            }
-        }
-
-        public GenericInverseCharacteristic() : base() { }
-
+        public double MinTripMultiplier { get; set; } = 1;
+        
+        /// <summary>
+        /// Will copy settings from other GenericInverseCharacteristic curves
+        /// </summary>
+        /// <param name="f"></param>
         protected override void PretendCopyConstructor(GraphableFeature f)
         {
             base.PretendCopyConstructor(f);
@@ -94,6 +36,7 @@ namespace oprot.plot.core
                 Pickup = c2.Pickup;
                 HiSetPickup = c2.HiSetPickup;
                 MaxTripTime = c2.MaxTripTime;
+                MinTripMultiplier = c2.MinTripMultiplier;
             }
             RaiseFeatureChanged();
         }
@@ -112,13 +55,13 @@ namespace oprot.plot.core
         /// <returns></returns>
         public override double Curve(double d)
         {
-            if (d >= _hiSet)
+            if (d >= HiSetPickup)
                 return 0.01;
-            if (d < _pickup*_minTripMultiplier)
+            if (d < Pickup*MinTripMultiplier)
                 return _maxTripTimeHardLimit;
             double tripTime = CurveEquation(d);
-            if (tripTime > _maxTripTime)
-                return _maxTripTime;
+            if (tripTime > MaxTripTime)
+                return MaxTripTime;
             if (tripTime > _maxTripTimeHardLimit)
                 return _maxTripTimeHardLimit;
             if (tripTime < _minTripHardLimit)
