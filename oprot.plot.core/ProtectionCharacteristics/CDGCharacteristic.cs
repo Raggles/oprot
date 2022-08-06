@@ -1,37 +1,24 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.Windows;
-using OxyPlot;
 
 namespace oprot.plot.core
 {
-    public class CDGCharacteristic : FixedMarginCharacteristic
+    public partial class CDGCharacteristic : FixedMarginCharacteristic
     {
-        //private double _plugSetting = 1.0;
-        private double _timeSetting = 1.0;
-        //private double _ctRatio = 400;
-
         private Dictionary<double, Point[]> _points = new Dictionary<double, Point[]>();
         private Dictionary<double, DataInterpolator> _data = new Dictionary<double, DataInterpolator>();
 
-        public double PlugSetting { get; set; }
+        [ObservableProperty]
+        private double plugSetting;
 
-        public double TimeSetting
-        {
-            get
-            {
-                return _timeSetting;
-            }
-            set
-            {
-                if (value < 0.1 || value > 1.0)
-                    throw new ArgumentOutOfRangeException("Time setting must be between 0.1 and 1.0");
-                _timeSetting = value;
-                RaisePropertyChanged(nameof(TimeSetting));
-            }
-        }
+        [ObservableProperty]
+        private double timeSetting = 1.0;
+        //throw new ArgumentOutOfRangeException("Time setting must be between 0.1 and 1.0");
 
-        public double CTRatio { get; set; }
+        [ObservableProperty]
+        private double cTRatio;
 
         public CDGCharacteristic(string filename)
         {
@@ -51,19 +38,19 @@ namespace oprot.plot.core
         {
             double pickup = d / CTRatio;
 
-            if (_data.ContainsKey(_timeSetting))
+            if (_data.ContainsKey(TimeSetting))
             {
-                var r = _data[_timeSetting].Interpolate(pickup);
+                var r = _data[TimeSetting].Interpolate(pickup);
                 return r;
             }
             else
             {
-                double tmsLo = RoundDown(_timeSetting, 1);
-                double tmsHi = RoundUp(_timeSetting, 1);
+                double tmsLo = RoundDown(TimeSetting, 1);
+                double tmsHi = RoundUp(TimeSetting, 1);
                 double valueLo = _data[tmsLo].Interpolate(pickup);
                 double valueHi = _data[tmsHi].Interpolate(pickup);
 
-                double ratio = (_timeSetting - tmsLo) / (tmsHi - tmsLo);
+                double ratio = (TimeSetting - tmsLo) / (tmsHi - tmsLo);
                 return (valueHi - valueLo) * ratio + valueLo;
             }
         }
@@ -79,11 +66,12 @@ namespace oprot.plot.core
             return Math.Ceiling(i * power) / power;
         }
 
-        
+        //TODO: remove
+        /*
         protected override PlotElement GetPlotElement()
         {
             throw new NotImplementedException();
-        }
+        }*/
         
 
     }

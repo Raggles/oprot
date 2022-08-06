@@ -6,6 +6,7 @@ using OxyPlot.Annotations;
 
 namespace oprot.plot.core
 {
+    /*
     public class FaultLevelAnnotation : GraphableFeature
     {
         public double Current { get; set; }
@@ -15,4 +16,5 @@ namespace oprot.plot.core
             return new LineAnnotation { Type = LineAnnotationType.Vertical, X = Current * Voltage / PlotParameters.BaseVoltage , MaximumY = 10000, StrokeThickness = 2, Color = Color, LineStyle = LineStyle.Dash, Text = Name };
         }
     }
+    */
 }

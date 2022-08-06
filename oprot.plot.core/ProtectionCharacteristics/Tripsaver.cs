@@ -1,7 +1,7 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using OxyPlot;
 
 namespace oprot.plot.core
 {
@@ -18,28 +18,29 @@ namespace oprot.plot.core
         _100T
     }
 
-    public class TripSaver : FixedMarginCharacteristic
+    public partial class TripSaver : FixedMarginCharacteristic
     {
-        private TripSaverFuse _fuseenum;
-        private double _hiSet = double.PositiveInfinity;
-        private double _maxTripTime = 2.0;
-        private double _minTripMultiplier = 3.0;
+        [ObservableProperty]
+        private TripSaverFuse fuseEnum;
+
+        [ObservableProperty]
+        private double hiSetMul = double.PositiveInfinity;
+
+        [ObservableProperty]
+        private double maxTripTime = 2.0;
+
+        [ObservableProperty]
+        private double minTripMultiplier = 3.0;
+
         private double _maxTripTimeHardLimit = 1e6;
         private double _minTripHardLimit = 0.01;
 
-        public TripSaverFuse Fuse { get; set; }
-
-        public double MaxTripTime { get; set; }
-
-        public double HiSetMul { get; set; }
-
-        public double MinTripMultiplier { get; set; }
         
         public double Pickup
         {
             get
             {
-                string r = _fuseenum.ToString().TrimEnd(new char[] { 'T', 'K' }).TrimStart(new char[] { '_' });
+                string r = FuseEnum.ToString().TrimEnd(new char[] { 'T', 'K' }).TrimStart(new char[] { '_' });
                 return double.Parse(r);
             }
         }
@@ -48,7 +49,7 @@ namespace oprot.plot.core
         {
             get
             {
-                switch (_fuseenum) {
+                switch (FuseEnum) {
                     case TripSaverFuse._6T:
                         return 10.248;
                     case TripSaverFuse._10T:
@@ -74,28 +75,28 @@ namespace oprot.plot.core
             }
         }
 
-        protected override void PretendCopyConstructor(GraphableFeature g)
+        protected override void PretendCopyConstructor(ProtectionCharacteristic c)
         {
-            base.PretendCopyConstructor(g);
-            if (g is TripSaver g2)
+            base.PretendCopyConstructor(c);
+            if (c is TripSaver c2)
             {
-                _fuseenum = g2.Fuse;
-                _hiSet = g2.HiSetMul;
-                _maxTripTime = g2.MaxTripTime;
-                _minTripMultiplier = g2.MinTripMultiplier;
+                FuseEnum = c2.FuseEnum;
+                HiSetMul = c2.HiSetMul;
+                MaxTripTime = c2.MaxTripTime;
+                MinTripMultiplier = c2.MinTripMultiplier;
             }
         }
 
         public override double Curve(double d)
         {
             double p = Pickup*2;
-            if (d >= p*_hiSet)
+            if (d >= p*HiSetMul)
                 return _minTripHardLimit;
-            if (d < p * _minTripMultiplier)
+            if (d < p * MinTripMultiplier)
                 return _maxTripTimeHardLimit;
             double tripTime = A / (Math.Pow(d / p, 2) - 1);
-            if (tripTime > _maxTripTime)
-                return _maxTripTime;
+            if (tripTime > MaxTripTime)
+                return MaxTripTime;
             if (tripTime > _maxTripTimeHardLimit)
                 return _maxTripTimeHardLimit;
             if (tripTime < _minTripHardLimit)

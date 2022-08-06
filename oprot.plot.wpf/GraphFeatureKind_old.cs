@@ -1,6 +1,6 @@
 ﻿namespace oprot.plot.core
 {
-    public enum GraphFeatureKind
+    public enum GraphFeatureKind_old
     {
         IECStandardInverse,
         IECVeryInverse,

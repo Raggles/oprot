@@ -1,17 +1,18 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
-using PropertyChanged;
 
 namespace oprot.plot.core
 {
 
-    public class FuseSingleCharacteristic : FixedMarginCharacteristic
+    public partial class FuseSingleCharacteristic : FixedMarginCharacteristic
     {
         public List<string> FuseSizes { get; set; } = new List<string>();
         private Dictionary<string, DataInterpolator> _mapping = new Dictionary<string, DataInterpolator>();
 
-        [AlsoNotifyFor(nameof(Description), nameof(DisplayName))]
-        public string FuseSize { get; set; }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(Description))]
+        private string fuseSize;
         
         
         public FuseSingleCharacteristic(string dataFile) 
@@ -40,9 +41,7 @@ namespace oprot.plot.core
             return GetCurve(FuseSize)(d);
         }
 
-        public override string ToString()
-        {
-            return $"{FuseSize}";
-        }       
+        public override string ToString() => $"{FuseSize}";
+
     }
 }

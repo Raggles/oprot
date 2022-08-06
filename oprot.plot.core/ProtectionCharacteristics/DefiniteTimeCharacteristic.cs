@@ -1,89 +1,49 @@
-﻿using OxyPlot;
-using PropertyChanged;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace oprot.plot.core
 {
-    public class DefiniteTimeCharacteristic : FixedMarginCharacteristic
+    public partial class DefiniteTimeCharacteristic : FixedMarginCharacteristic
     {
-        private double _time = 10;
-        private double _pickup = 100;
-        private double _hiset = double.PositiveInfinity;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(Description))]
+        private double time = 10;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(Description))]
+        private double pickup = 100;
+
+        [ObservableProperty]
+        private double hiSet = double.PositiveInfinity;
+
+
         private readonly double _maxTripTimeHardLimit = 1e6;
 
-        [AlsoNotifyFor(nameof(Description))]
-        public double Time
+        protected override void PretendCopyConstructor(ProtectionCharacteristic c)
         {
-            get
+            base.PretendCopyConstructor(c);
+            if (c is DefiniteTimeCharacteristic c2)
             {
-                return _time;
-            }
-            set
-            {
-                _time = value;
-                RaiseFeatureChanged();
-            }
-        }
-
-        [AlsoNotifyFor(nameof(Description))]
-        public double Pickup
-        {
-            get
-            {
-                return _pickup;
-            }
-            set
-            {
-                _pickup = value;
-                RaiseFeatureChanged();
-            }
-        }
-
-        [AlsoNotifyFor(nameof(Description))]
-
-        public double HiSetPickup
-        {
-            get
-            {
-                return _hiset;
-            }
-            set
-            {
-                _hiset = value;
-                RaisePropertyChanged(nameof(HiSetPickup));
-                RaiseFeatureChanged();
-            }
-        }
-
-    
-        protected override void PretendCopyConstructor(GraphableFeature f)
-        {
-            base.PretendCopyConstructor(f);
-            if (f is DefiniteTimeCharacteristic f2)
-            {
-                _time = f2.Time;
-                _pickup = f2.Pickup;
-                _hiset = f2.HiSetPickup;
+                Time = c2.Time;
+                Pickup = c2.Pickup;
+                HiSet = c2.HiSet;
             }
         }
         
         public override double Curve(double d)
         {
-            if (d >= _hiset)
+            if (d >= HiSet)
                 return 0.01;
-            if (d >= _pickup)
+            if (d >= Pickup)
             {
-                return _time;
+                return Time;
             }
             else
                 return _maxTripTimeHardLimit;
         }
 
-        public override string ToString()
-        {
-            return $"{Pickup}A@{Time} DT";
-        }
+        public override string ToString() => $"{Pickup}A @{Time} DT";
 
-        
+        /*
         protected override PlotElement GetPlotElement()
         {
             var s = new LogFunctionSeries(Curve, PlotParameters.MinimumCurrent, PlotParameters.MaximumCurrent, PlotParameters.NumberOfSamples, DisplayName, DiscriminationMargin, TempMultiplier * PlotParameters.BaseVoltage / Voltage)
@@ -94,7 +54,7 @@ namespace oprot.plot.core
             if (TempMultiplier != 1.0)
                 s.LineStyle = LineStyle.Dash;
             return s;
-        }
+        }*/
 
     }
 }

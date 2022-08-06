@@ -1,7 +1,7 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using OxyPlot;
 
 namespace oprot.plot.core
 {
@@ -13,56 +13,30 @@ namespace oprot.plot.core
         ChanceFuseTypeT
     }
 
-    public class FuseSaver : FixedMarginCharacteristic
+    public partial class FuseSaver : FixedMarginCharacteristic
     {
-        private FuseDualCharacteristic _fuseobject;
-        private FuseSaverFuse _fuseenum = FuseSaverFuse.SandCPositrolFuseTypeT;
-        private double _hiSet = double.PositiveInfinity;
-        private double _maxTripTime = 2.0;
-        private double _minTripMultiplier = 3.0;
+        [ObservableProperty]
+        private FuseDualCharacteristic fuse;
+
+        [ObservableProperty]
+        private FuseSaverFuse fuseEnum = FuseSaverFuse.SandCPositrolFuseTypeT;
+
+        [ObservableProperty]
+        private double hiSet = double.PositiveInfinity;
+
+        [ObservableProperty]
+        private double maxTripTime = 2.0;
+
+        [ObservableProperty]
+        private double minTripMultiplier = 3.0;
+
+
         private double _maxTripTimeHardLimit = 1e6;
         private double _minTripHardLimit = 0.01;
 
-        public FuseDualCharacteristic Fuse
-        {
-            get
-            {
-                return _fuseobject;
-            }
-            set
-            {
-                _fuseobject = value;
-                _fuseobject.FeatureChanged += _fuseobject_FeatureChanged;
-                _fuseobject.PropertyChanged += _fuseobject_PropertyChanged;
-            }
-        }
-
-        private void _fuseobject_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(Description))
-            {
-                RaisePropertyChanged(e.PropertyName);
-                RaisePropertyChanged(nameof(DisplayName));
-            }
-        }
-
-        private void _fuseobject_FeatureChanged()
-        {
-            _plotElement = null;
-            RaiseFeatureChanged();
-        }
-
-        public double MaxTripTime { get; set; }
-      
-
-        public double HiSetMul { get; set; }
-       
-
-        public double MinTripMultiplier { get; set; }
-
-
+        
         public FuseSaverFuse FuseType {
-            get { return _fuseenum; }
+            get { return FuseEnum; }
             set
             {
                 switch (value)
@@ -80,7 +54,7 @@ namespace oprot.plot.core
                         Fuse = new ChanceFuseT();
                         break;
                 }
-                _fuseenum = value;
+                FuseEnum = value;
             }
         }
 
@@ -98,20 +72,19 @@ namespace oprot.plot.core
             Fuse = new SandCFuseT();
         }
 
-        protected override void PretendCopyConstructor(GraphableFeature g)
+        protected override void PretendCopyConstructor(ProtectionCharacteristic c)
         {
-            base.PretendCopyConstructor(g);
-            if (g is FuseSaver g2)
+            base.PretendCopyConstructor(c);
+            if (c is FuseSaver c2)
             {
-                _fuseenum = g2.FuseType;
-                Fuse = g2.Fuse.Clone() as FuseDualCharacteristic;
-                
-                _hiSet = g2.HiSetMul;
-                _maxTripTime = g2.MaxTripTime;
-                _minTripMultiplier = g2.MinTripMultiplier;
+                FuseEnum = c2.FuseType;
+                Fuse = c2.Fuse.Clone() as FuseDualCharacteristic;
+                HiSet = c2.HiSet;
+                MaxTripTime = c2.MaxTripTime;
+                MinTripMultiplier = c2.MinTripMultiplier;
             }
             if (Fuse == null)
-                    FuseType = _fuseenum;
+                    FuseType = FuseEnum;
         }
 
         public override double Curve(double d)
@@ -120,13 +93,13 @@ namespace oprot.plot.core
                 return double.NaN;
             }
             double p = Pickup;
-            if (d >= p*_hiSet)
+            if (d >= p*HiSet)
                 return 0.01;
-            if (d < p * _minTripMultiplier)
+            if (d < p * MinTripMultiplier)
                 return _maxTripTimeHardLimit;
             double tripTime = 0.33 * _i2tDict[Fuse.FuseSize] / Math.Pow(d,2);
-            if (tripTime > _maxTripTime)
-                return _maxTripTime;
+            if (tripTime > MaxTripTime)
+                return MaxTripTime;
             if (tripTime > _maxTripTimeHardLimit)
                 return _maxTripTimeHardLimit;
             if (tripTime < _minTripHardLimit)
@@ -135,10 +108,7 @@ namespace oprot.plot.core
         }
 
         
-        public override string ToString()
-        {
-            return Fuse?.ToString();
-        }
+        public override string ToString() =>Fuse?.ToString();
 
         private Dictionary<string, double> _i2tDict = new Dictionary<string, double>() {
             {"1K",19        }  ,

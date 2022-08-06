@@ -1,6 +1,5 @@
-﻿using MicroMvvm;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Newtonsoft.Json;
-using OxyPlot;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,9 +8,31 @@ using System.Text;
 
 namespace oprot.plot.core
 {
-    public abstract class ProtectionCharacteristic : GraphableFeature, IComparable
+    public  abstract partial class ProtectionCharacteristic : ObservableObject, IComparable
     {
-        public double MaximumFaultLevel { get; set; } = double.PositiveInfinity;
+        /// <summary>
+        /// TempMultiplier is a scaling factor that may be applied to a curve to take into account different network configurations
+        /// such as a circuit or transformer out of service
+        /// </summary>
+        [ObservableProperty]
+        private double tempMultiplier = 1.0;
+
+        /// <summary>
+        /// The nominal voltage for the protection device (can be p.u., V, kV etc)
+        /// </summary>
+        [ObservableProperty]
+        private double voltage  = 11000;
+
+        [ObservableProperty]
+        private double maximumFaultLevel  = double.PositiveInfinity;
+
+        [ObservableProperty]
+        private double minimumFaultLevel  = double.NaN;
+
+        public string Description => $"{this}";
+
+        [ObservableProperty]
+        private string name = "Name";
 
         public int CompareTo(object obj)
         {
@@ -64,48 +85,26 @@ namespace oprot.plot.core
         /// <returns></returns>
         public abstract double Curve(double d);
         public abstract double LowerMargin(double d);
-        public abstract double UpperMargin(double d); 
-    }
+        public abstract double UpperMargin(double d);
 
-    public abstract class FixedMarginCharacteristic : ProtectionCharacteristic
-    {
-        private double _discriminationMargin = 0.2;
-
-        public double DiscriminationMargin
+        protected virtual void PretendCopyConstructor(ProtectionCharacteristic c)
         {
-            get
+            if (c != null)
             {
-                return _discriminationMargin;
-            }
-            set
-            {
-                if (value < 0.01 || value > 1)
-                    return;
-                _discriminationMargin = value;
-                RaiseFeatureChanged();
+                Name = c.Name;
+                //Color = c.Color;
+                Voltage = c.Voltage;
+                TempMultiplier = c.TempMultiplier;
             }
         }
 
-        public bool ShowDiscriminationMargin { get; set; }
-
-        public override double LowerMargin(double d)
+        /// <summary>
+        /// Clone the feature
+        /// </summary>
+        /// <returns></returns>
+        public object Clone()
         {
-            return Math.Max(Curve(d) - DiscriminationMargin, 0);
-        }
-
-        public override double UpperMargin(double d)
-        {
-            return Curve(d) + DiscriminationMargin;
-        }
-
-        protected override PlotElement GetPlotElement()
-        {
-            var s = new LogFunctionSeries(Curve, PlotParameters.MinimumCurrent, PlotParameters.MaximumCurrent, PlotParameters.NumberOfSamples, DisplayName, DiscriminationMargin, TempMultiplier * PlotParameters.BaseVoltage / Voltage);
-            s.ShowDiscriminationMargin = ShowDiscriminationMargin;
-            s.Color = this.Color;
-            if (TempMultiplier != 1.0)
-                s.LineStyle = LineStyle.Dash;
-            return s;
+            return (ProtectionCharacteristic)this.MemberwiseClone();
         }
     }
 

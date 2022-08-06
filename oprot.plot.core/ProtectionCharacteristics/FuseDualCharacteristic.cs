@@ -1,7 +1,6 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
-using OxyPlot;
-using PropertyChanged;
 
 namespace oprot.plot.core
 {
@@ -11,18 +10,20 @@ namespace oprot.plot.core
         MaximumClearingTime
     }
 
-    public class FuseDualCharacteristic : ProtectionCharacteristic
+    public partial class FuseDualCharacteristic : ProtectionCharacteristic
     {
         public List<string> FuseSizes { get; set; } = new List<string>();
         //private FuseCurveType _fusecurve;
         //possibly an ugly way of achieving this, but it works for now
         private Dictionary<string, Dictionary<FuseCurveType, DataInterpolator>> _mapping = new Dictionary<string, Dictionary<FuseCurveType, DataInterpolator>>();
-        //private string _fuseSize;
+        
 
-        public FuseCurveType FuseCurve { get; set; }
+        [ObservableProperty]
+        private FuseCurveType fuseCurve;
 
-        [AlsoNotifyFor(nameof(Description), nameof(DisplayName))]
-        public string FuseSize { get; set; }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(Description))]
+        private string fuseSize;
 
         public FuseDualCharacteristic(string meltingFile, string clearingFile)
         {
@@ -67,7 +68,8 @@ namespace oprot.plot.core
             throw new NotImplementedException();
         }
 
-        
+        //TODO: remove
+        /*
         protected override PlotElement GetPlotElement()
         {
             //TODO: this is backwards, we can rewrite this to give the correct info now
@@ -77,5 +79,6 @@ namespace oprot.plot.core
                 s.LineStyle = LineStyle.Dash;
             return s;
         }
+        */
     }
 }
