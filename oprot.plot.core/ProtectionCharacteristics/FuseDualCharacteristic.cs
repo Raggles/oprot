@@ -68,17 +68,5 @@ namespace oprot.plot.core
             throw new NotImplementedException();
         }
 
-        //TODO: remove
-        /*
-        protected override PlotElement GetPlotElement()
-        {
-            //TODO: this is backwards, we can rewrite this to give the correct info now
-            var s = new FuseSeries(this, PlotParameters.MinimumCurrent, PlotParameters.MaximumCurrent, PlotParameters.NumberOfSamples, DisplayName, TempMultiplier* PlotParameters.BaseVoltage/ Voltage);
-            s.Color = this.Color;
-            if (TempMultiplier != 1.0)
-                s.LineStyle = LineStyle.Dash;
-            return s;
-        }
-        */
     }
 }

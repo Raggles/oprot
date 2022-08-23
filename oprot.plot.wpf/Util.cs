@@ -77,19 +77,4 @@ namespace oprot.plot.core
 
         }
     }
-
-    public class PlotDetails :ObservableObject
-    {
-        public bool AppendDescriptionToDisplayName { get; set; } = true;
-
-        public double BaseVoltage { get; set; } = 11000;
-
-        public int NumberOfSamples { get; set; } = 1000;
-
-        public double MaximumCurrent { get; set; } = 30000;
-
-
-        public double MinimumCurrent { get; set; } = 1;
-        
-    }
 }

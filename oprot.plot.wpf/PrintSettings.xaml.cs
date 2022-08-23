@@ -91,7 +91,7 @@ namespace oprot.plot.wpf
                             fp.Children.Add(g);
                             imageWidth = (int)((imageWidth-20) * ((double)resolution / 96));
                             imageHeight = (int)((imageHeight-10) * (double)resolution / 96);
-                            var pngExporter = new PngExporter { Width = imageWidth, Height = imageHeight, Background = OxyColors.White, Resolution = resolution };
+                            var pngExporter = new PngExporter { Width = imageWidth, Height = imageHeight, Resolution = resolution };
                             Image img = new Image
                             {
                                 Source = pngExporter.ExportToBitmap(_model.ProtectionPlot),

@@ -1,69 +1,221 @@
-﻿using MicroMvvm;
-using Newtonsoft.Json;
-using PropertyChanged;
+﻿using Newtonsoft.Json;
 using System;
 using System.Windows.Input;
 using oprot.plot.core;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using Windows.Security.Isolation;
+using ABI.Windows.Services.Maps;
+using OxyPlot;
 
 namespace oprot.plot.wpf
-{
-    public class GraphFeature : ObservableObject
+{ 
+    public enum FeatureType
+        {
+            IECStandardInverse,
+            IECVeryInverse,
+            IECExtremelyInverse,
+            IEEEModeratelyInverse,
+            IEEEVeryInverse,
+            IEEEExtremelyInverse,
+            DefiniteTime,
+            SandCPositrolFuseTypeK,
+            SandCPositrolFuseTypeT,
+            ChanceFuseTypeK,
+            ChanceFuseTypeT,
+            FaultLevelAnnotation,
+            FuseSaver,
+            TripSaver,
+            HRCKnifeFuse,
+            HRCBoltedFuse,
+            HRCMJTypeFuse,
+            NHgGFuse690V,
+            ABBCEF,
+            GradingResult
+        }
+    public partial class GraphFeature : ObservableObject
     {
-        //whenever a curve parameter has changed, i.e. the plot element has been regenerated
-        public event Action GraphFeatureChanged;
+
+        [ObservableProperty] private PlotElement graphic;
+
+        [ObservableProperty] private ProtectionCharacteristic feature;
+
+        [ObservableProperty] private bool hidden;
+
+        [ObservableProperty] private bool isExpanded;
+
+        [ObservableProperty] private bool isSelected;
+
+        [ObservableProperty] private OxyColor color;
         
+        [ObservableProperty] private MainViewModel owner;
+
+        [ObservableProperty] private ObservableCollection<GraphFeature> childItems = new();
+
+        [ObservableProperty] private FeatureType graphFeatureType = FeatureType.IECExtremelyInverse;
+
+        [ObservableProperty] private bool showDiscriminationMargin;
+
+        //complete re-draw when:
+        //hidden changed
+        //feature changed
+        //feature property changed
+        //whenever a curve parameter has changed, i.e. the plot element has been regenerated
+        public event Action GraphicChanged;
+
+        //re-render when:
+        //discrimination margin is changed 
+        //show discrimination is changed
+        //color is changed
         //whenever the plot element has not changed, but required re-rendering.
         //e.g. the discrimination margin has been enabled/disabled
-        //curently not used
-        public event Action GraphFeatureInvalidated;
+        public event Action GraphicInvalidated;
 
-
-        private GraphFeatureKind _featureType = GraphFeatureKind.IECStandardInverse;
-        private bool _initialized = false;
-
-        [AlsoNotifyFor(nameof(Feature))]
-        public GraphFeatureKind FeatureType
-        {
-            get
-            {
-                return _featureType;
-            }
-            set
-            {
-                if (value == GraphFeatureKind.GradingResult && _initialized)
-                    return;
-                
-                _featureType = value;
-
-                if (_initialized && value != GraphFeatureKind.GradingResult)
-                {
-                    SetNewFeature();
-                }
-                RaiseFeatureChanged();
-            }
-        }
-
-        [JsonProperty]
-        public GraphableFeature Feature { get; private set; }
         
-
         public GraphFeature() {  }
 
-        public GraphFeature(GraphableFeature f, GraphFeatureKind k)
+        public GraphFeature(MainViewModel m, FeatureType t)
         {
-            _initialized = true;
-            _featureType = k;
-            Feature = f;
-            Feature.FeatureChanged += _curveObject_PropertyChanged;
+            //_initialized = true;
+            Owner = m;
+            GraphFeatureType = t;
+            //SetNewFeature();
+            SetNewGraphic();
+        }
+        
+        private void SetNewFeature()
+        {
+            switch (graphFeatureType)
+            {
+                case FeatureType.DefiniteTime:
+                    Feature = new DefiniteTimeCharacteristic();
+                    break;
+                case FeatureType.IECStandardInverse:
+                    Feature = new IECStandardInverse();
+                    break;
+                case FeatureType.IECVeryInverse:
+                    Feature = new IECVeryInverse(); 
+                    break;
+                case FeatureType.IECExtremelyInverse:
+                    Feature = new IECExtremelyInverse();
+                    break;
+                case FeatureType.IEEEModeratelyInverse:
+                    Feature = new IEEEModeratelyInverse();
+                    break;
+                case FeatureType.IEEEVeryInverse:
+                    Feature = new IEEEVeryInverse();
+                    break;
+                case FeatureType.IEEEExtremelyInverse:
+                    Feature = new IEEEExtremelyInverse();
+                    break;
+                case FeatureType.SandCPositrolFuseTypeK:
+                    Feature = new SandCFuseK();
+                    break;
+                case FeatureType.SandCPositrolFuseTypeT:
+                    Feature = new SandCFuseT();
+                    break;
+                case FeatureType.ChanceFuseTypeK:
+                    Feature = new ChanceFuseK();
+                    break;
+                case FeatureType.ChanceFuseTypeT:
+                    Feature = new ChanceFuseT();
+                    break;
+                case FeatureType.FuseSaver:
+                    Feature = new FuseSaver();
+                    break;
+                case FeatureType.TripSaver:
+                    Feature = new TripSaver();
+                    break;
+                case FeatureType.NHgGFuse690V:
+                    Feature = new NHFuse();
+                    break;
+                case FeatureType.HRCBoltedFuse:
+                    Feature = new HRCBoltedFuse();
+                    break;
+                case FeatureType.HRCKnifeFuse:
+                    Feature = new HRCKnifeFuse();
+                    break;
+                case FeatureType.HRCMJTypeFuse:
+                    Feature = new HRCMJ30Fuse();
+                    break;
+                case FeatureType.ABBCEF:
+                    Feature = new ABBCEFFuse();
+                    break;
+                //case FeatureType.FaultLevelAnnotation:
+                //    _curve = GraphFeature.FromOther<FaultLevelAnnotation>(Feature);
+                //    break;
+            }
+            Feature.PropertyChanged += Feature_PropertyChanged;
         }
 
-        public object Clone()
+        private void SetNewGraphic()
         {
-            GraphFeature obj = (GraphFeature)this.MemberwiseClone();
-            obj.CloneClean();
-            return obj;
+            if (Feature is FixedMarginCharacteristic c)
+            {
+                var s = new LogFunctionSeries(Feature.Curve, Owner.MinimumCurrent, Owner.MaximumCurrent, Owner.NumberOfSamples, Feature.Name, c.DiscriminationMargin, Feature.TempMultiplier * Owner.BaseVoltage / Feature.Voltage)
+                {
+                    ShowDiscriminationMargin = ShowDiscriminationMargin,
+                    Color = this.Color
+                };
+                if (Feature.TempMultiplier != 1.0)
+                    s.LineStyle = LineStyle.Dash;
+                Graphic = s;
+                
+            }
+            else if (feature is FuseDualCharacteristic)
+            {
+                //TODO: this is backwards, we can rewrite this to give the correct info now
+                var s = new FuseSeries(Feature as FuseDualCharacteristic, Owner.MinimumCurrent, Owner.MaximumCurrent, Owner.NumberOfSamples, Feature.Name, Feature.TempMultiplier * Owner.BaseVoltage / Feature.Voltage);
+                s.Color = this.Color;
+                if (Feature.TempMultiplier != 1.0)
+                    s.LineStyle = LineStyle.Dash;
+                Graphic = s;
+            }
+            GraphicChanged?.Invoke();
         }
 
+
+        partial void OnGraphFeatureTypeChanged(FeatureType value)
+        {
+            Debug.Print(nameof(OnGraphFeatureTypeChanged));
+            SetNewFeature();
+        }
+
+        partial void OnFeatureChanged(ProtectionCharacteristic value)
+        {
+            Debug.Print(nameof(OnFeatureChanged));
+            SetNewGraphic();
+        }
+
+        private void Feature_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            Debug.Print(nameof(Feature_PropertyChanged));
+            SetNewGraphic();
+        }
+        
+
+        
+        partial void OnColorChanged(OxyColor value)
+        {
+            GraphicInvalidated?.Invoke();
+        }
+
+        partial void OnShowDiscriminationMarginChanged(bool value)
+        {
+            GraphicInvalidated?.Invoke();
+        }
+
+
+        /* TODO:
+public object Clone()
+{
+    GraphFeature obj = (GraphFeature)this.MemberwiseClone();
+    obj.CloneClean();
+    return obj;
+}*/
+
+        /*
         private void CloneClean()
         {
             GraphFeatureChanged = null;
@@ -72,106 +224,7 @@ namespace oprot.plot.wpf
             Feature = (GraphableFeature)Feature.Clone();
             Feature.FeatureChanged += _curveObject_PropertyChanged;
         }
-        
-
-
-        private void RaiseFeatureChanged()
-        {
-            GraphFeatureChanged?.Invoke();
-        }
-
-        private void _curveObject_PropertyChanged()
-        {
-            RaiseFeatureChanged();
-        }
-        private void SetNewFeature()
-        {
-            switch (_featureType)
-            {
-                case GraphFeatureKind.DefiniteTime:
-                    Feature = GraphableFeature.FromOther<DefiniteTimeCharacteristic>(Feature);
-                    break;
-                case GraphFeatureKind.IECStandardInverse:
-                    Feature = GraphableFeature.FromOther<IECStandardInverse>(Feature);
-                    break;
-                case GraphFeatureKind.IECVeryInverse:
-                    Feature = GraphableFeature.FromOther<IECVeryInverse>(Feature); 
-                    break;
-                case GraphFeatureKind.IECExtremelyInverse:
-                    Feature = GraphableFeature.FromOther<IECExtremelyInverse>(Feature);
-                    break;
-                case GraphFeatureKind.IEEEModeratelyInverse:
-                    Feature = GraphableFeature.FromOther<IEEEModeratelyInverse>(Feature);
-                    break;
-                case GraphFeatureKind.IEEEVeryInverse:
-                    Feature = GraphableFeature.FromOther<IEEEVeryInverse>(Feature);
-                    break;
-                case GraphFeatureKind.IEEEExtremelyInverse:
-                    Feature = GraphableFeature.FromOther<IEEEExtremelyInverse>(Feature);
-                    break;
-                case GraphFeatureKind.SandCPositrolFuseTypeK:
-                    Feature = GraphableFeature.FromOther<SandCFuseK>(Feature);
-                    break;
-                case GraphFeatureKind.SandCPositrolFuseTypeT:
-                    Feature = GraphableFeature.FromOther<SandCFuseT>(Feature);
-                    break;
-                case GraphFeatureKind.ChanceFuseTypeK:
-                    Feature = GraphableFeature.FromOther<ChanceFuseK>(Feature);
-                    break;
-                case GraphFeatureKind.ChanceFuseTypeT:
-                    Feature = GraphableFeature.FromOther<ChanceFuseT>(Feature);
-                    break;
-                case GraphFeatureKind.FuseSaver:
-                    Feature = GraphableFeature.FromOther<FuseSaver>(Feature);
-                    break;
-                case GraphFeatureKind.TripSaver:
-                    Feature = GraphableFeature.FromOther<TripSaver>(Feature);
-                    break;
-                case GraphFeatureKind.NHgGFuse690V:
-                    Feature = GraphableFeature.FromOther<NHFuse>(Feature);
-                    break;
-                case GraphFeatureKind.HRCBoltedFuse:
-                    Feature = GraphableFeature.FromOther<HRCBoltedFuse>(Feature);
-                    break;
-                case GraphFeatureKind.HRCKnifeFuse:
-                    Feature = GraphableFeature.FromOther<HRCKnifeFuse>(Feature);
-                    break;
-                case GraphFeatureKind.HRCMJTypeFuse:
-                    Feature = GraphableFeature.FromOther<HRCMJ30Fuse>(Feature);
-                    break;
-                case GraphFeatureKind.ABBCEF:
-                    Feature = GraphableFeature.FromOther<ABBCEFFuse>(Feature);
-                    break;
-                case GraphFeatureKind.FaultLevelAnnotation:
-                    Feature = GraphableFeature.FromOther<FaultLevelAnnotation>(Feature);
-                    break;
-            }
-            Feature.FeatureChanged += _curveObject_PropertyChanged;
-        }
-
-        public void OnDeserialize()
-        {
-            Feature.FeatureChanged += _curveObject_PropertyChanged;
-            _initialized = true;
-        }
-
-        #region SetTempMultiplierCommand
-
-        void SetTempMultiplierExecute(object d)
-        {
-            Feature.TempMultiplier = double.Parse(d.ToString());
-        }
-
-        bool CanSetTempMultiplierExecute(object d)
-        {
-            return true;
-        }
-
-        [JsonIgnore]
-        public ICommand SetTempMultiplier { get { return new oprot.plot.core.RelayCommand<object>(SetTempMultiplierExecute, CanSetTempMultiplierExecute); } }
-
-        #endregion
-
+        */
 
     }
 }

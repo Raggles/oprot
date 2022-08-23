@@ -34,7 +34,7 @@ namespace oprot.plot.wpf
             {
                 MainViewModel m = JsonConvert.DeserializeObject<MainViewModel>(File.ReadAllText(args[0]));
                 DataContext = m;
-                m.OnDeserialize();
+                //m.OnDeserialize();
             }
             catch (Exception ex)
             {
@@ -70,7 +70,7 @@ namespace oprot.plot.wpf
                         TypeNameHandling = TypeNameHandling.Auto
                     });
                     DataContext = m;
-                    m.OnDeserialize();
+                    //m.OnDeserialize();
                 }
             }
             catch (Exception ex)
@@ -94,7 +94,7 @@ namespace oprot.plot.wpf
         {
             double w = plotView.ActualWidth;
             double h = plotView.ActualHeight;
-            var pngExporter = new PngExporter { Width = (int)w, Height = (int)h, Background = OxyColors.White };
+            var pngExporter = new PngExporter { Width = (int)w, Height = (int)h };
             Clipboard.SetImage(pngExporter.ExportToBitmap(((MainViewModel)DataContext).ProtectionPlot));
         }
 

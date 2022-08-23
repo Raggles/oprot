@@ -42,19 +42,7 @@ namespace oprot.plot.core
         }
 
         public override string ToString() => $"{Pickup}A @{Time} DT";
-
-        /*
-        protected override PlotElement GetPlotElement()
-        {
-            var s = new LogFunctionSeries(Curve, PlotParameters.MinimumCurrent, PlotParameters.MaximumCurrent, PlotParameters.NumberOfSamples, DisplayName, DiscriminationMargin, TempMultiplier * PlotParameters.BaseVoltage / Voltage)
-            {
-                ShowDiscriminationMargin = ShowDiscriminationMargin,
-                Color = this.Color
-            };
-            if (TempMultiplier != 1.0)
-                s.LineStyle = LineStyle.Dash;
-            return s;
-        }*/
+        
 
     }
 }

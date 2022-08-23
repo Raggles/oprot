@@ -24,6 +24,7 @@ namespace oprot.plot.core
         /// </summary>
         public FuseSeries() { }
 
+        
         /// <summary>
         /// Renders the series on the specified rendering context.
         /// </summary>
@@ -38,9 +39,6 @@ namespace oprot.plot.core
 
             this.VerifyAxes();
 
-            var clippingRect = this.GetClippingRect();
-            rc.SetClip(clippingRect);
-
             //if (ShowDiscriminationMargin)
             {
                 List<ScreenPoint> polypoints = new List<ScreenPoint>();
@@ -52,20 +50,18 @@ namespace oprot.plot.core
                 polyColour = polyColour.ChangeIntensity(4);
                 polyColour = polyColour.ChangeSaturation(0.25);
                 polyColour = OxyColor.FromAColor(127, polyColour);
-                rc.DrawClippedPolygon(clippingRect, polypoints, 0.1, polyColour, ActualColor, 0.5);
+                rc.DrawPolygon(polypoints, polyColour, ActualColor, 0.5, EdgeRenderingMode.PreferSharpness);
             }
 
-            this.RenderPoints(rc, clippingRect, actualPoints);
+            this.RenderPoints(rc, actualPoints);
 
 
 
             if (this.LabelFormatString != null)
             {
                 // render point labels (not optimized for performance)
-                this.RenderPointLabels(rc, clippingRect);
+                this.RenderPointLabels(rc);
             }
-
-            rc.ResetClip();
 
             if (this.LineLegendPosition != LineLegendPosition.None && !string.IsNullOrEmpty(this.Title))
             {

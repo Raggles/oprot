@@ -9,7 +9,7 @@ namespace oprot.plot.wpf
     /// </summary>
     public partial class DataWindow : Window
     {
-        public DataWindow(ObservableCollection<GraphFeature> curves, PlotDetails d)
+        public DataWindow(ObservableCollection<GraphFeature> curves, double  d)
         {
             InitializeComponent();
             _model.Curves = curves;

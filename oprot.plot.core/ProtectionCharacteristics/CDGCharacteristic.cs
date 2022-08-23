@@ -65,14 +65,5 @@ namespace oprot.plot.core
             var power = Math.Pow(10, decimalPlaces);
             return Math.Ceiling(i * power) / power;
         }
-
-        //TODO: remove
-        /*
-        protected override PlotElement GetPlotElement()
-        {
-            throw new NotImplementedException();
-        }*/
-        
-
     }
 }

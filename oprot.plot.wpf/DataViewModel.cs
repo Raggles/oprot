@@ -2,6 +2,7 @@
 using MicroMvvm;
 using System.Data;
 using oprot.plot.core;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace oprot.plot.wpf
 {
@@ -12,7 +13,7 @@ namespace oprot.plot.wpf
 
         public ObservableCollection<GraphFeature> Curves { get; set; } = new ObservableCollection<GraphFeature>();
 
-        public void Generate(PlotDetails d)
+        public void Generate(double d)
         {
             DataTable dt = new DataTable();
             var current = dt.Columns.Add("Current (A)", typeof(float));
@@ -39,7 +40,7 @@ namespace oprot.plot.wpf
 
                 for (int i = 0; i < 10000; i++)
                 {
-                    dt.Rows[i][col] = (float)c.Curve(i * d.BaseVoltage / c.Voltage);
+                    dt.Rows[i][col] = (float)c.Curve(i * d / c.Voltage);
                 }
             }
             Data = dt;

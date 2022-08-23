@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace oprot.plot.core
 {
+    /*
     public class GradingHighlighter : GraphableFeature
     {
         public List<GradingResult> Result { get; set; } = new List<GradingResult>();
@@ -77,5 +78,5 @@ namespace oprot.plot.core
 
             rc.ResetClip();
         }
-    }
+    }*/
 }

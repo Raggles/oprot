@@ -15,6 +15,9 @@ using System.Globalization;
 using Microsoft.Win32;
 using System.IO;
 using System.Linq;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using OxyPlot.Legends;
 
 namespace oprot.plot.wpf
 {
@@ -42,18 +45,7 @@ namespace oprot.plot.wpf
         }
     }
 
-    public class FeatureGroup : ObservableObject
-    {
-        public string Name { get; set; } = "Name";
-        public ObservableCollection<GraphFeature> Features { get; set; } = new ObservableCollection<GraphFeature>();
-        public bool Hidden { get; set; } = false;
-        public bool Expanded { get; set; }
-
-        //used to trigger regrading of curves
-        public event Action MemberCurveChanged;
-    }
-
-    public class MainViewModel : ObservableObject
+    public partial class MainViewModel : ObservableObject
     {
         private List<OxyColor> _defaultColors = new List<OxyColor>
         {
@@ -71,50 +63,72 @@ namespace oprot.plot.wpf
         };
         private int _colourIndex = 0;
 
-        public PlotDetails PlotDetails { get; set; } = new PlotDetails();
+        [ObservableProperty]
+        private bool appendDescriptionToDisplayName = true;
+
+        [ObservableProperty]
+        private double baseVoltage = 11000;
+
+        [ObservableProperty]
+        private int numberOfSamples  = 1000;
+
+        [ObservableProperty]
+        private double maximumCurrent  = 30000;
+
+        [ObservableProperty]
+        private double minimumCurrent = 1;
+
+        [ObservableProperty]
+        private ObservableCollection<GraphFeature> graphFeatures = new();
+        
+        [JsonIgnore]
+        [ObservableProperty]
+        private PlotModel protectionPlot;
+
         public string PlotTitle
         {
-            get
-            {
-                return ProtectionPlot.Title;
-            }
+            get => ProtectionPlot.Title;
             set
             {
                 ProtectionPlot.Title = value;
                 ProtectionPlot.InvalidatePlot(false);
-                RaisePropertyChanged(nameof(PlotTitle));
+                OnPropertyChanged(nameof(PlotTitle));
             }
         }
 
-        public ObservableCollection<FeatureGroup> Groups { get; set; } = new ObservableCollection<FeatureGroup>();
+        [ObservableProperty]
+        private double xMin;
 
-        public double XMin { get; set; }
-        public double XMax { get; set; }
-        public double YMin { get; set; }
-        public double YMax { get; set; }
+        [ObservableProperty]
+        private double xMax;
+
+        [ObservableProperty]
+        private double yMin;
+
+        [ObservableProperty]
+        private double yMax;
+
+        
 
         [JsonIgnore]
-        public PlotModel ProtectionPlot { get; private set; }
-
-        [JsonIgnore]
-        public GraphFeature SelectedFeature { get; set; }
-
-        [JsonIgnore]
-        public FeatureGroup SelectedGroup { get; set; }
+        [ObservableProperty]
+        private GraphFeature selectedFeature;
 
         public MainViewModel()
         {
-            PlotDetails.PropertyChanged += PlotDetails_PropertyChanged;
-            ProtectionPlot = new PlotModel { Title = "Protection Plot" };
+            ProtectionPlot = new PlotModel { Title = "Protection Plot", IsLegendVisible = true};
+
+            ProtectionPlot.Legends.Add(new Legend()
+            {
+                LegendTitle = "Legend",
+                LegendPosition = LegendPosition.RightTop,
+            });
+
             ProtectionPlot.Axes.Add(new LogarithmicAxis() { Position = AxisPosition.Bottom, Minimum = 100, Maximum = 10000, MajorGridlineStyle = LineStyle.Solid, Title = "Current (A)", AbsoluteMaximum = 100e3, AbsoluteMinimum = 0.01 });
             ProtectionPlot.Axes.Add(new LogarithmicAxis() { Position = AxisPosition.Left, Minimum = 0.01, Maximum = 100, MajorGridlineStyle = LineStyle.Solid, Title = "Time (s)", AbsoluteMaximum = 1e5, AbsoluteMinimum = 0.1 });
         }
 
-        private void PlotDetails_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            Redraw();
-        }
-
+        /*
         public GraphFeature AddNewFeature(FeatureGroup g, GraphFeature newFeature = null, int position = -1)
         {
             if (newFeature == null)
@@ -122,7 +136,7 @@ namespace oprot.plot.wpf
                 newFeature = CreateNewFeature();
             }
             return AddTheFeature(g, newFeature, position);
-        }
+        }*/
 
         /// <summary>
         /// Create a new default feature
@@ -130,77 +144,66 @@ namespace oprot.plot.wpf
         /// <returns></returns>
         private GraphFeature CreateNewFeature()
         {
-            return CreateNewFeature(new IECStandardInverse() { Color = _defaultColors[_colourIndex++ % _defaultColors.Count] }, GraphFeatureKind.IECStandardInverse);
-        }
-
-        private GraphFeature CreateNewFeature(GraphableFeature f, GraphFeatureKind k)
-        {
-            GraphFeature g = new GraphFeature(f, k);
-            g.GraphFeatureChanged += Redraw;
-            g.Feature.PlotParameters = PlotDetails;
+            var g = new GraphFeature(this, FeatureType.IECStandardInverse) { Color = _defaultColors[_colourIndex++ % _defaultColors.Count]};
+            g.GraphicChanged += Redraw;
+            g.GraphicInvalidated += G_GraphicInvalidated;
+            g.PropertyChanged += G_PropertyChanged;
             return g;
         }
 
-        private GraphFeature AddTheFeature(FeatureGroup g, GraphFeature newFeature, int position = -1)
+        private void G_GraphicInvalidated()
         {
-            g.Features.Add(newFeature);
-            if (position >= 0 && position < g.Features.Count - 1)
-            {
-                g.Features.Move(g.Features.Count - 1, position);
-            }
-
-            if (newFeature.Feature.GraphElement is Annotation)
-            {
-                ProtectionPlot.Annotations.Add(newFeature.Feature.GraphElement as Annotation);
-            }
-            else
-            {
-                ProtectionPlot.Series.Add(newFeature.Feature.GraphElement as LineSeries);
-            }
-            ProtectionPlot.InvalidatePlot(false);
-            return newFeature;
+            protectionPlot.InvalidatePlot(false);
         }
 
-        private void FeatureInvalidated()
+        private void G_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            ProtectionPlot.InvalidatePlot(false);
+            if (e.PropertyName == nameof(GraphFeature.IsSelected) && ((GraphFeature)sender).IsSelected)
+            {
+                SelectedFeature = sender as GraphFeature;
+            }
         }
 
         private void Redraw()
         {
+            //TODO: we should only remove\update the one that changed!
             ProtectionPlot.Series.Clear();
             ProtectionPlot.Annotations.Clear();
-            foreach (var g in Groups)
-                foreach (var feature in g.Features)
+            foreach (var g in GraphFeatures)
+            {
+                RedrawFeature(g);
+                
+            }
+            ProtectionPlot.InvalidatePlot(true);
+        }
+
+        private void RedrawFeature(GraphFeature f)
+        {
+            if (!f.Hidden)
+            {
+                if (f.Graphic is Annotation)
                 {
-                    if (!feature.Feature.Hidden)
-                    {
-
-                        if (feature.Feature.GraphElement is Annotation)
-                        {
-                            ProtectionPlot.Annotations.Add(feature.Feature.GraphElement as Annotation);
-                        }
-                        else
-                        {
-                            ProtectionPlot.Series.Add(feature.Feature.GraphElement as LineSeries);
-                        }
-
-                    }
+                    ProtectionPlot.Annotations.Add(f.Graphic as Annotation);
                 }
-            ProtectionPlot.InvalidatePlot(false);
+                else
+                {
+                    ProtectionPlot.Series.Add(f.Graphic as LineSeries);
+                }
+            }
+            foreach (var feature in f.ChildItems)
+            {
+                RedrawFeature(feature);
+            }
         }
 
         #region Commands
 
-        #region Delete Feature Command
-        void DeleteFeatureExecute(GraphFeature f)
+        [RelayCommand]
+        void DeleteFeature(GraphFeature f)
         {
             try
             {
-                foreach (var g in Groups)
-                {
-                    g.Features.Remove(f);
-                }
+                //todo
                 Redraw();
             }
             catch (Exception ex)
@@ -208,16 +211,7 @@ namespace oprot.plot.wpf
                 MessageBox.Show(ex.ToString());
             }
         }
-
-        bool CanDeleteFeatureExecute(GraphFeature f)
-        {
-            return f != null;
-        }
-
-        [JsonIgnore]
-        public ICommand DeleteFeature { get { return new MicroMvvm.RelayCommand<GraphFeature>(DeleteFeatureExecute, CanDeleteFeatureExecute); } }
-        #endregion
-
+/*
         #region Duplicate Feature Command
         void DuplicateFeatureExecute(GraphFeature f)
         {
@@ -259,7 +253,7 @@ namespace oprot.plot.wpf
                 {
                     f.Feature.Color = OxyColor.FromArgb(colorDialog.Color.A, colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B);
                 };
-                */
+                
             }
             catch { }
         }
@@ -274,7 +268,8 @@ namespace oprot.plot.wpf
         [JsonIgnore]
         public ICommand SelectColor { get { return new MicroMvvm.RelayCommand<GraphFeature>(SelectColorExecute, CanSelectColorExecute); } }
         #endregion
-
+*/
+/*
         #region Move Feature Up Command
         void MoveFeatureUpExecute(GraphFeature f)
         {
@@ -416,36 +411,25 @@ namespace oprot.plot.wpf
         [JsonIgnore]
         public ICommand PasteFeature { get { return new MicroMvvm.RelayCommand<GraphFeature>(PasteFeatureExecute, CanPasteFeatureExecute); } }
         #endregion
-
-        #region Add Feature Command
-        void AddFeatureExecute(FeatureGroup f)
+*/
+        [RelayCommand]
+        void AddFeature(GraphFeature g)
         {
             try
             {
-                SelectedFeature = AddNewFeature(f);
-                SelectedGroup.Expanded = true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
+                var f = CreateNewFeature();
+                if (g == null)
+                {
+                    GraphFeatures.Add(f);
+                }
+                else
+                {
+                    g.ChildItems.Add(f);
+                    g.IsExpanded = true;
+                }
+                //f.IsSelected = true;
 
-        bool CanAddFeatureExecute(FeatureGroup f)
-        {
-            return f != null;
-        }
 
-        [JsonIgnore]
-        public ICommand AddFeature { get { return new MicroMvvm.RelayCommand<FeatureGroup>(AddFeatureExecute, CanAddFeatureExecute); } }
-        #endregion
-
-        #region DeleteGroup Command
-        void DeleteGroupExecute(FeatureGroup f)
-        {
-            try
-            {
-                Groups.Remove(f);
                 Redraw();
             }
             catch (Exception ex)
@@ -454,21 +438,13 @@ namespace oprot.plot.wpf
             }
         }
 
-        bool CanDeleteGroupExecute(FeatureGroup f)
-        {
-            return f != null;
-        }
 
-        [JsonIgnore]
-        public ICommand DeleteGroup { get { return new MicroMvvm.RelayCommand<FeatureGroup>(DeleteGroupExecute, CanDeleteGroupExecute); } }
-        #endregion
-
-        #region Rename Group Command
-        void RenameGroupExecute(FeatureGroup f)
+        [RelayCommand]
+        void Save()
         {
             try
             {
-                f.Name = new RenameGroupWindow(f.Name).Go();
+                //todo
             }
             catch (Exception ex)
             {
@@ -476,126 +452,7 @@ namespace oprot.plot.wpf
             }
         }
 
-        bool CanRenameGroupExecute(FeatureGroup f)
-        {
-            return f != null;
-        }
-
-        [JsonIgnore]
-        public ICommand RenameGroup { get { return new MicroMvvm.RelayCommand<FeatureGroup>(RenameGroupExecute, CanRenameGroupExecute); } }
-        #endregion
-
-        #region Add Group Command
-        void AddGroupExecute(FeatureGroup f)
-        {
-            try
-            {
-                var g = new FeatureGroup() { Expanded = true };
-                Groups.Add(g);
-                SelectedGroup = g;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        bool CanAddGroupExecute(FeatureGroup f)
-        {
-            return true;
-        }
-
-        [JsonIgnore]
-        public ICommand AddGroup { get { return new MicroMvvm.RelayCommand<FeatureGroup>(AddGroupExecute, CanAddGroupExecute); } }
-        #endregion
-
-        #region Duplicate Group Command
-        void DuplicateGroupExecute(FeatureGroup f)
-        {
-            try
-            {
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        bool CanDuplicateGroupExecute(FeatureGroup f)
-        {
-            return f != null;
-        }
-
-        [JsonIgnore]
-        public ICommand DuplicateGroup { get { return new MicroMvvm.RelayCommand<FeatureGroup>(DuplicateGroupExecute, CanDuplicateGroupExecute); } }
-
-        #endregion
-
-        #region Move Group Up Command
-        void MoveGroupUpExecute(FeatureGroup f)
-        {
-            try
-            {
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        bool CanMoveGroupUpExecute(FeatureGroup f)
-        {
-            return f != null;
-        }
-
-        [JsonIgnore]
-        public ICommand MoveGroupUp { get { return new MicroMvvm.RelayCommand<FeatureGroup>(MoveGroupUpExecute, CanMoveGroupUpExecute); } }
-        #endregion
-
-        #region Move Group DownCommand
-        void MoveGroupDownExecute(FeatureGroup f)
-        {
-            try
-            {
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        bool CanMoveGroupDownExecute(FeatureGroup f)
-        {
-            return f != null;
-        }
-
-        [JsonIgnore]
-        public ICommand MoveGroupDown { get { return new MicroMvvm.RelayCommand<FeatureGroup>(MoveGroupDownExecute, CanMoveGroupDownExecute); } }
-        #endregion
-
-        #region Save Command
-        void SaveExecute(FeatureGroup f)
-        {
-            try
-            {
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        bool CanSaveExecute(FeatureGroup f)
-        {
-            return f != null;
-        }
-
-        [JsonIgnore]
-        public ICommand Save { get { return new MicroMvvm.RelayCommand<FeatureGroup>(SaveExecute, CanSaveExecute); } }
-        #endregion
-
-        #region Save As Command
-        void SaveAsExecute(FeatureGroup f)
+        void SaveAs()
         {
             try
             {
@@ -622,17 +479,8 @@ namespace oprot.plot.wpf
             }
         }
 
-        bool CanSaveAsExecute(FeatureGroup f)
-        {
-            return true;
-        }
-
-        [JsonIgnore]
-        public ICommand SaveAs { get { return new MicroMvvm.RelayCommand<FeatureGroup>(SaveAsExecute, CanSaveAsExecute); } }
-        #endregion
-
-        #region Export Image Command
-        void ExoprtImageExecute(FeatureGroup f)
+        [RelayCommand]
+        void ExoprtImage()
         {
             try
             {
@@ -644,7 +492,7 @@ namespace oprot.plot.wpf
                     {
                         double w = ProtectionPlot.PlotArea.Width;
                         double h = ProtectionPlot.PlotArea.Height;
-                        var pngExporter = new OxyPlot.Wpf.PngExporter { Width = (int)w, Height = (int)h, Background = OxyColors.White };
+                        var pngExporter = new OxyPlot.Wpf.PngExporter { Width = (int)w, Height = (int)h};
                         OxyPlot.Wpf.ExporterExtensions.ExportToFile(pngExporter, ProtectionPlot, d.FileName);
                     }
                 }
@@ -659,15 +507,8 @@ namespace oprot.plot.wpf
             }
         }
 
-        bool CanExoprtImageExecute(FeatureGroup f)
-        {
-            return true;
-        }
 
-        [JsonIgnore]
-        public ICommand ExoprtImage { get { return new MicroMvvm.RelayCommand<FeatureGroup>(ExoprtImageExecute, CanExoprtImageExecute); } }
-        #endregion
-
+        /*
         #region Grader Command
         void GraderExecute(FeatureGroup f)
         {
@@ -706,9 +547,10 @@ namespace oprot.plot.wpf
         [JsonIgnore]
         public ICommand AutoGrader { get { return new MicroMvvm.RelayCommand<FeatureGroup>(GraderExecute, CanGraderExecute); } }
         #endregion
-
+        */
         
         #endregion
+        /*
         public void OnDeserialize()
         {
             foreach (var g in Groups)
@@ -723,5 +565,6 @@ namespace oprot.plot.wpf
             ProtectionPlot.Axes[1].Zoom(YMin, YMax);
             Redraw();
         }
+        */
     }
 }
