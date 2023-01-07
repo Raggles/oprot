@@ -49,7 +49,7 @@ namespace oprot.plot.core
                 rc.DrawPolygon(polypoints, polyColour, ActualColor, 0.2, EdgeRenderingMode.PreferSharpness);
             }
 
-            Color = OxyColors.Green;
+            //Color = OxyColors.Green;
             this.RenderPoints(rc, actualPoints);
 
             

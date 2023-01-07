@@ -5,35 +5,12 @@ using oprot.plot.core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using Windows.Security.Isolation;
-using ABI.Windows.Services.Maps;
 using OxyPlot;
+using System.Security;
+using OxyPlot.Series;
 
 namespace oprot.plot.wpf
-{ 
-    public enum FeatureType
-        {
-            IECStandardInverse,
-            IECVeryInverse,
-            IECExtremelyInverse,
-            IEEEModeratelyInverse,
-            IEEEVeryInverse,
-            IEEEExtremelyInverse,
-            DefiniteTime,
-            SandCPositrolFuseTypeK,
-            SandCPositrolFuseTypeT,
-            ChanceFuseTypeK,
-            ChanceFuseTypeT,
-            FaultLevelAnnotation,
-            FuseSaver,
-            TripSaver,
-            HRCKnifeFuse,
-            HRCBoltedFuse,
-            HRCMJTypeFuse,
-            NHgGFuse690V,
-            ABBCEF,
-            GradingResult
-        }
+{
     public partial class GraphFeature : ObservableObject
     {
 
@@ -53,7 +30,7 @@ namespace oprot.plot.wpf
 
         [ObservableProperty] private ObservableCollection<GraphFeature> childItems = new();
 
-        [ObservableProperty] private FeatureType graphFeatureType = FeatureType.IECExtremelyInverse;
+        [ObservableProperty] private CharacteristicType graphFeatureType = CharacteristicType.IECExtremelyInverse;
 
         [ObservableProperty] private bool showDiscriminationMargin;
 
@@ -75,7 +52,7 @@ namespace oprot.plot.wpf
         
         public GraphFeature() {  }
 
-        public GraphFeature(MainViewModel m, FeatureType t)
+        public GraphFeature(MainViewModel m, CharacteristicType t)
         {
             //_initialized = true;
             Owner = m;
@@ -88,58 +65,58 @@ namespace oprot.plot.wpf
         {
             switch (graphFeatureType)
             {
-                case FeatureType.DefiniteTime:
+                case CharacteristicType.DefiniteTime:
                     Feature = new DefiniteTimeCharacteristic();
                     break;
-                case FeatureType.IECStandardInverse:
+                case CharacteristicType.IECStandardInverse:
                     Feature = new IECStandardInverse();
                     break;
-                case FeatureType.IECVeryInverse:
+                case CharacteristicType.IECVeryInverse:
                     Feature = new IECVeryInverse(); 
                     break;
-                case FeatureType.IECExtremelyInverse:
+                case CharacteristicType.IECExtremelyInverse:
                     Feature = new IECExtremelyInverse();
                     break;
-                case FeatureType.IEEEModeratelyInverse:
+                case CharacteristicType.IEEEModeratelyInverse:
                     Feature = new IEEEModeratelyInverse();
                     break;
-                case FeatureType.IEEEVeryInverse:
+                case CharacteristicType.IEEEVeryInverse:
                     Feature = new IEEEVeryInverse();
                     break;
-                case FeatureType.IEEEExtremelyInverse:
+                case CharacteristicType.IEEEExtremelyInverse:
                     Feature = new IEEEExtremelyInverse();
                     break;
-                case FeatureType.SandCPositrolFuseTypeK:
+                case CharacteristicType.SandCPositrolFuseTypeK:
                     Feature = new SandCFuseK();
                     break;
-                case FeatureType.SandCPositrolFuseTypeT:
+                case CharacteristicType.SandCPositrolFuseTypeT:
                     Feature = new SandCFuseT();
                     break;
-                case FeatureType.ChanceFuseTypeK:
+                case CharacteristicType.ChanceFuseTypeK:
                     Feature = new ChanceFuseK();
                     break;
-                case FeatureType.ChanceFuseTypeT:
+                case CharacteristicType.ChanceFuseTypeT:
                     Feature = new ChanceFuseT();
                     break;
-                case FeatureType.FuseSaver:
+                case CharacteristicType.FuseSaver:
                     Feature = new FuseSaver();
                     break;
-                case FeatureType.TripSaver:
+                case CharacteristicType.TripSaver:
                     Feature = new TripSaver();
                     break;
-                case FeatureType.NHgGFuse690V:
+                case CharacteristicType.NHgGFuse690V:
                     Feature = new NHFuse();
                     break;
-                case FeatureType.HRCBoltedFuse:
+                case CharacteristicType.HRCBoltedFuse:
                     Feature = new HRCBoltedFuse();
                     break;
-                case FeatureType.HRCKnifeFuse:
+                case CharacteristicType.HRCKnifeFuse:
                     Feature = new HRCKnifeFuse();
                     break;
-                case FeatureType.HRCMJTypeFuse:
+                case CharacteristicType.HRCMJTypeFuse:
                     Feature = new HRCMJ30Fuse();
                     break;
-                case FeatureType.ABBCEF:
+                case CharacteristicType.ABBCEF:
                     Feature = new ABBCEFFuse();
                     break;
                 //case FeatureType.FaultLevelAnnotation:
@@ -175,8 +152,12 @@ namespace oprot.plot.wpf
             GraphicChanged?.Invoke();
         }
 
-
-        partial void OnGraphFeatureTypeChanged(FeatureType value)
+        partial void OnColorChanged(OxyColor value)
+        {
+            ((LineSeries)Graphic).Color = value;
+            GraphicChanged?.Invoke();
+        }
+        partial void OnGraphFeatureTypeChanged(CharacteristicType value)
         {
             Debug.Print(nameof(OnGraphFeatureTypeChanged));
             SetNewFeature();
@@ -196,10 +177,7 @@ namespace oprot.plot.wpf
         
 
         
-        partial void OnColorChanged(OxyColor value)
-        {
-            GraphicInvalidated?.Invoke();
-        }
+        
 
         partial void OnShowDiscriminationMarginChanged(bool value)
         {

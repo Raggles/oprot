@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="oprot.plot.wpf.ViewModels.NetworkObjectViewModel">
+    <Position X="3.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAQAAgAAAQAAAAAQAQAAAAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>ViewModels\NetworkObjectViewModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="model" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="oprot.plot.wpf.ViewModels.NetworkViewModel">
+    <Position X="10" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABCAAABgAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>ViewModels\NetworkViewModel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="oprot.plot.wpf.ViewModels.OprotViewModelProvider">
+    <Position X="7.5" Y="1" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ViewModels\OprotViewModelProvider.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="oprot.plot.wpf.ViewModels.ProtectionDeviceViewModel">
+    <Position X="3.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAwAABAAAAAAAAAAAEAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ViewModels\ProtectionDeviceViewModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="elements" />
+      <Property Name="DerivedModel" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="oprot.plot.wpf.ViewModels.GraphicChangedEventArgs" Collapsed="true">
+    <Position X="10.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ViewModels\ProtectionElementViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="oprot.plot.wpf.ViewModels.ProtectionElementViewModel" BaseTypeListCollapsed="true">
+    <Position X="7" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQEAIAAAEACAAAQgQAAAAAAACIEAQAAEQIAAA=</HashCode>
+      <FileName>ViewModels\ProtectionElementViewModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="model" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="oprot.plot.core.ProtectionElement">
+    <Position X="9.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier />
+    <ShowAsAssociation>
+      <Property Name="Characteristic" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="oprot.plot.core.ProtectionDevice">
+    <Position X="1" Y="4.5" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="oprot.plot.core.ProtectionCharacteristic">
+    <Position X="12.5" Y="4" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="oprot.plot.core.NetworkObject">
+    <Position X="1" Y="1.25" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="oprot.plot.wpf.VmCollection&lt;TViewModel, TModel&gt;" Collapsed="true">
+    <Position X="5.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABMEEAABAQAAgAAgABAAAQAAAAAAACQBAAAAAA=</HashCode>
+      <FileName>VmCollection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="oprot.plot.wpf.ViewModels.IViewModelProvider" Collapsed="true">
+    <Position X="12.25" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ViewModels\IViewModelProvider.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="oprot.plot.wpf.ViewModels.GraphicChangeType" Collapsed="true">
+    <Position X="1" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ViewModels\ProtectionElementViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Delegate Name="oprot.plot.wpf.ViewModels.GraphicChangedEventHandler" Collapsed="true">
+    <Position X="10.25" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>ViewModels\ProtectionElementViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

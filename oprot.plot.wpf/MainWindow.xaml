@@ -7,6 +7,9 @@
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:local="clr-namespace:oprot.plot.wpf"
         xmlns:ppcore="clr-namespace:oprot.plot.core;assembly=oprot.plot.core" 
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+
         mc:Ignorable="d"
         Icon="/Resources/icon.png"
         Title="oprot.plot.wpf" Height="697" Width="935" WindowState="Maximized" Loaded="Window_Loaded" x:Name="mainWindow">
@@ -14,10 +17,10 @@
         <local:MainViewModel x:Name="_model"/>
     </Window.DataContext>
     <Window.Resources>
-        
+
         <ObjectDataProvider x:Key="dataFromEnumCurve" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="local:FeatureType"/>
+                <x:Type TypeName="local:CharacteristicType"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
         <ObjectDataProvider x:Key="dataFromEnumFuseCurve" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
@@ -38,6 +41,7 @@
         <local:NullBooleanConverter x:Key="NullBoolConverter" />
         <local:BoolToVisibilityConverter x:Key="BoolToCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" />
         <local:BoolToVisibilityConverter x:Key="BoolToCollapsedInvertedConverter" TrueValue="Collapsed" FalseValue="Visible" />
+        <local:OxyColorToColorConverter x:Key="OxyToColorConverter" />
         <local:OxyColorToBrushConverter x:Key="OxyToBrushConverter" />
         <local:OxyColorToBrushFadedConverter x:Key="OxyToBrushConverterFaded" />
         <DataTemplate DataType="{x:Type ppcore:GenericInverseCharacteristic}">
@@ -101,7 +105,7 @@
                     <Label Content="Fuse Size:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
                     <ComboBox  HorizontalAlignment="Left" Margin="76,3,0,0" VerticalAlignment="Top" Width="164" ItemsSource="{Binding FuseSizes}" SelectedItem="{Binding Path=FuseSize}" />
                 </Grid>
-                
+
             </StackPanel>
         </DataTemplate>
         <DataTemplate DataType="{x:Type ppcore:FuseSingleCharacteristic}">
@@ -157,7 +161,7 @@
                 </Grid>
             </StackPanel>
         </DataTemplate>
-<!--
+        <!--
         <DataTemplate DataType="{x:Type ppcore:FaultLevelAnnotation}">
             <StackPanel>
                 <Grid>
@@ -228,12 +232,14 @@
                         <Image Source="/oprot.plot.wpf;component/Resources/DeleteIcon.png" ToolTip="Delete curve"/>
                     </Button>
                     <Button Click="mnuShowChart_Click" >
-                        <Image Source="/protplot;component/Resources/TableIcon.png" ToolTip="Show table"/>
+                        <Image Source="/oprot.plot.wpf;component/Resources/TableIcon.png" ToolTip="Show table"/>
                     </Button>
                     <Button Click="mnuAbout_Click" >
-                        <Image Source="/protplot;component/Resources/AboutIcon.png" ToolTip="About" />
+                        <Image Source="/oprot.plot.wpf;component/Resources/AboutIcon.png" ToolTip="About" />
                     </Button>
-
+                    <Button Click="mnuDeselect_Click" >
+                        <Image Source="/oprot.plot.wpf;component/Resources/AboutIcon.png" ToolTip="About" />
+                    </Button>
                 </ToolBar>
             </ToolBarTray>
 
@@ -276,11 +282,11 @@
                 </Expander.Header>
                 <Grid Background="#FFE5E5E5" Width="260">
                     <DockPanel LastChildFill="True">
-                        <StackPanel DockPanel.Dock="Top" Name="mainStack" DataContext="{Binding DataContext.SelectedFeature, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Height="350" IsEnabled="{Binding DataContext.SelectedFeature, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Converter={StaticResource NullBoolConverter}}">
+                        <StackPanel DockPanel.Dock="Top" Name="mainStack" DataContext="{Binding DataContext.SelectedFeature, ElementName=mainWindow}" Height="350" IsEnabled="{Binding DataContext.SelectedFeature, ElementName=mainWindow, Converter={StaticResource NullBoolConverter}}">
                             <Grid>
                                 <Label Content="Name" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
-                                <TextBox HorizontalAlignment="Left" Margin="76,4,0,0" VerticalAlignment="Top" Width="139" Height="20" Text="{Binding Feature.Name}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text"/>
-                                <Button Margin="0,0,20,2" HorizontalAlignment="Right" Width="20" Height="20" VerticalAlignment="Bottom" Background="{Binding Feature.Color, Converter={StaticResource OxyToBrushConverter}}" Command="{Binding DataContext.SelectColor, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding }" />
+                                <TextBox Name="txtName" HorizontalAlignment="Center" VerticalAlignment="Center" Width="108" Height="20" Text="{Binding Feature.Name}" local:InputBindingsManager.UpdateOnEnter="TextBox.Text" local:FocusExtension.IsFocused="{Binding DataContext.IsNameFocused, ElementName=mainWindow}"/>
+                                <xctk:ColorPicker SelectedColor="{Binding Color, Converter={StaticResource OxyToColorConverter}}" Margin="0,2,20,3" Height="20" Width="51" HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid>
                                 <Label Content="Curve:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
@@ -311,13 +317,13 @@
                             </Grid>
                             -->
                         </StackPanel>
-                        <TreeView x:Name="lbGroups" Margin="0,4,0,0"  ItemsSource="{Binding GraphFeatures}" HorizontalContentAlignment="Stretch" >
+                        <TreeView Name="treeView1" Margin="0,4,0,0"  ItemsSource="{Binding GraphFeatures}" HorizontalContentAlignment="Stretch" MouseUp="treeView1_MouseUp" dd:DragDrop.IsDropTarget="True" dd:DragDrop.IsDragSource="True" >
                             <TreeView.ItemTemplate>
                                 <HierarchicalDataTemplate ItemsSource="{Binding ChildItems}">
                                     <StackPanel Orientation="Horizontal">
-                                    
-                                    <TextBlock Text="{Binding Path=Feature.Name}" />
-                                    <TextBlock Text="{Binding Path=IsSelected}" />
+
+                                        <TextBlock Text="{Binding Path=Feature.Name}" />
+                                        <TextBlock Text="{Binding Path=IsSelected}" />
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                             </TreeView.ItemTemplate>

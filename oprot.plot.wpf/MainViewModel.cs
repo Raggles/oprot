@@ -10,8 +10,6 @@ using Newtonsoft.Json;
 using OxyPlot.Annotations;
 using OxyPlot.Series;
 using oprot.plot.core;
-using System.Windows.Data;
-using System.Globalization;
 using Microsoft.Win32;
 using System.IO;
 using System.Linq;
@@ -21,29 +19,6 @@ using OxyPlot.Legends;
 
 namespace oprot.plot.wpf
 {
-
-    [ValueConversion(typeof(bool), typeof(bool))]
-    public class NullBooleanConverter : IValueConverter
-    {
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value != null)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value != null)
-            {
-                return true;
-            }
-            return false;
-        }
-    }
 
     public partial class MainViewModel : ObservableObject
     {
@@ -114,6 +89,10 @@ namespace oprot.plot.wpf
         [ObservableProperty]
         private GraphFeature selectedFeature;
 
+        [JsonIgnore]
+        [ObservableProperty]
+        private bool isNameFocused;
+
         public MainViewModel()
         {
             ProtectionPlot = new PlotModel { Title = "Protection Plot", IsLegendVisible = true};
@@ -128,23 +107,13 @@ namespace oprot.plot.wpf
             ProtectionPlot.Axes.Add(new LogarithmicAxis() { Position = AxisPosition.Left, Minimum = 0.01, Maximum = 100, MajorGridlineStyle = LineStyle.Solid, Title = "Time (s)", AbsoluteMaximum = 1e5, AbsoluteMinimum = 0.1 });
         }
 
-        /*
-        public GraphFeature AddNewFeature(FeatureGroup g, GraphFeature newFeature = null, int position = -1)
-        {
-            if (newFeature == null)
-            {
-                newFeature = CreateNewFeature();
-            }
-            return AddTheFeature(g, newFeature, position);
-        }*/
-
         /// <summary>
         /// Create a new default feature
         /// </summary>
         /// <returns></returns>
         private GraphFeature CreateNewFeature()
         {
-            var g = new GraphFeature(this, FeatureType.IECStandardInverse) { Color = _defaultColors[_colourIndex++ % _defaultColors.Count]};
+            var g = new GraphFeature(this, CharacteristicType.IECStandardInverse) { Color = _defaultColors[_colourIndex++ % _defaultColors.Count]};
             g.GraphicChanged += Redraw;
             g.GraphicInvalidated += G_GraphicInvalidated;
             g.PropertyChanged += G_PropertyChanged;
@@ -161,6 +130,20 @@ namespace oprot.plot.wpf
             if (e.PropertyName == nameof(GraphFeature.IsSelected) && ((GraphFeature)sender).IsSelected)
             {
                 SelectedFeature = sender as GraphFeature;
+            }
+        }
+
+        public void DeselectAll()
+        {
+            DeselectAll(GraphFeatures);
+            SelectedFeature = null;
+        }
+        private void DeselectAll(IList<GraphFeature> l)
+        {
+            foreach (var f in l)
+            {
+                f.IsSelected = false;
+                DeselectAll(f.ChildItems);
             }
         }
 
@@ -183,6 +166,7 @@ namespace oprot.plot.wpf
             {
                 if (f.Graphic is Annotation)
                 {
+                    
                     ProtectionPlot.Annotations.Add(f.Graphic as Annotation);
                 }
                 else
@@ -203,13 +187,46 @@ namespace oprot.plot.wpf
         {
             try
             {
-                //todo
+                //delete the selected item, and add its children to its parent
+                if (f == null)
+                    return;
+                var p = GetParent(f, GraphFeatures);
+
+                if (p == null)
+                {
+                    graphFeatures.Remove(f);
+                    f.ChildItems.ToList().ForEach(x => graphFeatures.Add(x));
+                }
+                else
+                {
+                    p.ChildItems.Remove(f);
+                    f.ChildItems.ToList().ForEach(x => p.ChildItems.Add(x));
+                }
+                DeselectAll();
+
                 Redraw();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
             }
+        }
+
+        private GraphFeature GetParent(GraphFeature f, IList<GraphFeature> l)
+        {
+            if (l.Contains(f))
+                return null;//this handles the top level case
+            foreach (var g in l)
+            {
+                if (g.ChildItems.Contains(f))
+                    return g;
+                else
+                {
+                    var y = GetParent(f, g.ChildItems);
+                    if (y != null) return y;
+                }
+            }
+            return null;
         }
 /*
         #region Duplicate Feature Command
@@ -236,89 +253,9 @@ namespace oprot.plot.wpf
         [JsonIgnore]
         public ICommand DuplicateFeature { get { return new MicroMvvm.RelayCommand<GraphFeature>(DuplicateFeatureExecute, CanDuplicateFeatureExecute); } }
         #endregion
-
-        #region Select Color Command
-        void SelectColorExecute(GraphFeature f)
-        {
-            if (f == null)
-                return;
-            try
-            {
-                /* TODO:
-                System.Windows.Forms.ColorDialog colorDialog = new System.Windows.Forms.ColorDialog();
-                colorDialog.Color = System.Drawing.Color.FromArgb(f.Feature.Color.A, f.Feature.Color.R, f.Feature.Color.G, f.Feature.Color.B);
-                colorDialog.AllowFullOpen = true;
-                colorDialog.FullOpen = true;
-                if (colorDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    f.Feature.Color = OxyColor.FromArgb(colorDialog.Color.A, colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B);
-                };
-                
-            }
-            catch { }
-        }
-
-        bool CanSelectColorExecute(GraphFeature f)
-        {
-            //TODO: sort out the relaycommand class
-            return f != null;
-            //return true;
-        }
-
-        [JsonIgnore]
-        public ICommand SelectColor { get { return new MicroMvvm.RelayCommand<GraphFeature>(SelectColorExecute, CanSelectColorExecute); } }
-        #endregion
 */
 /*
-        #region Move Feature Up Command
-        void MoveFeatureUpExecute(GraphFeature f)
-        {
-            
-            try
-            {
-                int i = SelectedGroup.Features.IndexOf(f);
-                if (i > 0)
-                    SelectedGroup.Features.Move(i, i - 1);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        bool CanMoveFeatureUpExecute(GraphFeature f)
-        {
-            return f != null;
-        }
-
-        [JsonIgnore]
-        public ICommand MoveFeatureUp { get { return new MicroMvvm.RelayCommand<GraphFeature>(MoveFeatureUpExecute, CanMoveFeatureUpExecute); } }
-        #endregion
-
-        #region Move Feature Down Command
-        void MoveFeatureDownExecute(GraphFeature f)
-        { 
-            try
-            {
-                int i = SelectedGroup.Features.IndexOf(f);
-                if (i < SelectedGroup.Features.Count -1)
-                    SelectedGroup.Features.Move(i, i + 1);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        bool CanMoveFeatureDownExecute(GraphFeature f)
-        {
-            return f != null;
-        }
-
-        [JsonIgnore]
-        public ICommand MoveFeatureDown { get { return new MicroMvvm.RelayCommand<GraphFeature>(MoveFeatureDownExecute, CanMoveFeatureDownExecute); } }
-        #endregion
-
+        
         #region Copy Feature Json Command
         void CopyFeatureJsonExecute(GraphFeature f)
         {
@@ -427,7 +364,9 @@ namespace oprot.plot.wpf
                     g.ChildItems.Add(f);
                     g.IsExpanded = true;
                 }
-                //f.IsSelected = true;
+                f.IsSelected = true;
+                IsNameFocused = true;
+                IsNameFocused = false;
 
 
                 Redraw();
@@ -452,6 +391,7 @@ namespace oprot.plot.wpf
             }
         }
 
+        [RelayCommand]
         void SaveAs()
         {
             try

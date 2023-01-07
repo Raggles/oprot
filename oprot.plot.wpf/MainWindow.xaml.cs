@@ -13,6 +13,7 @@ using System.IO.Packaging;
 using System.Windows.Xps.Serialization;
 using System.Windows.Markup;
 using System.Threading;
+using System.Diagnostics;
 
 namespace oprot.plot.wpf
 {
@@ -103,6 +104,20 @@ namespace oprot.plot.wpf
             Disclaimer d = new Disclaimer();
             d.Owner = this;
             d.ShowDialog();
+        }
+
+        private void mnuDeselect_Click(object sender, RoutedEventArgs e)
+        {
+            _model.DeselectAll(); 
+        }
+
+        private void treeView1_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            //Debug.WriteLine(e.OriginalSource.GetType().ToString());
+            if (e.OriginalSource is System.Windows.Controls.Grid)
+            {
+                _model.DeselectAll();
+            }
         }
     }
 }
