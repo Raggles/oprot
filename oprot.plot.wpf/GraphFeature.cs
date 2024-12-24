@@ -5,17 +5,23 @@ using oprot.plot.core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Printing;
 using OxyPlot;
 using System.Security;
+using LiteDB;
 using OxyPlot.Series;
 
 namespace oprot.plot.wpf
 {
     public partial class GraphFeature : ObservableObject
     {
+        [property: BsonId] [ObservableProperty] private int graphFeatureId;
 
+        [property:JsonIgnore]
+        [property:BsonIgnore]
         [ObservableProperty] private PlotElement graphic;
 
+        [property: BsonRef("characteristics")]
         [ObservableProperty] private ProtectionCharacteristic feature;
 
         [ObservableProperty] private bool hidden;
@@ -24,11 +30,17 @@ namespace oprot.plot.wpf
 
         [ObservableProperty] private bool isSelected;
 
+        [property: BsonIgnore]
+
         [ObservableProperty] private OxyColor color;
-        
+
+        [property:BsonIgnore]
         [ObservableProperty] private MainViewModel owner;
 
+        [property: BsonIgnore]
         [ObservableProperty] private ObservableCollection<GraphFeature> childItems = new();
+
+        [property: BsonIgnore]
 
         [ObservableProperty] private CharacteristicType graphFeatureType = CharacteristicType.IECExtremelyInverse;
 
@@ -63,7 +75,7 @@ namespace oprot.plot.wpf
         
         private void SetNewFeature()
         {
-            switch (graphFeatureType)
+            switch (GraphFeatureType)
             {
                 case CharacteristicType.DefiniteTime:
                     Feature = new DefiniteTimeCharacteristic();
@@ -140,7 +152,7 @@ namespace oprot.plot.wpf
                 Graphic = s;
                 
             }
-            else if (feature is FuseDualCharacteristic)
+            else if (Feature is FuseDualCharacteristic)
             {
                 //TODO: this is backwards, we can rewrite this to give the correct info now
                 var s = new FuseSeries(Feature as FuseDualCharacteristic, Owner.MinimumCurrent, Owner.MaximumCurrent, Owner.NumberOfSamples, Feature.Name, Feature.TempMultiplier * Owner.BaseVoltage / Feature.Voltage);
@@ -173,6 +185,11 @@ namespace oprot.plot.wpf
         {
             Debug.Print(nameof(Feature_PropertyChanged));
             SetNewGraphic();
+        }
+
+        partial void OnHiddenChanged(bool value)
+        {
+            GraphicChanged?.Invoke();
         }
         
 

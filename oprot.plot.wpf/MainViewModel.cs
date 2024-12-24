@@ -16,6 +16,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OxyPlot.Legends;
+using LiteDB;
 
 namespace oprot.plot.wpf
 {
@@ -38,6 +39,8 @@ namespace oprot.plot.wpf
         };
         private int _colourIndex = 0;
 
+        [ObservableProperty] private int _id;
+
         [ObservableProperty]
         private bool appendDescriptionToDisplayName = true;
 
@@ -54,9 +57,11 @@ namespace oprot.plot.wpf
         private double minimumCurrent = 1;
 
         [ObservableProperty]
+        //[property: BsonIgnore]
         private ObservableCollection<GraphFeature> graphFeatures = new();
-        
-        [JsonIgnore]
+
+        [property: JsonIgnore]
+        [property: BsonIgnore]
         [ObservableProperty]
         private PlotModel protectionPlot;
 
@@ -83,13 +88,15 @@ namespace oprot.plot.wpf
         [ObservableProperty]
         private double yMax;
 
-        
 
-        [JsonIgnore]
+
+        [property: JsonIgnore]
+        [property: BsonIgnore]
         [ObservableProperty]
         private GraphFeature selectedFeature;
 
-        [JsonIgnore]
+        [property: JsonIgnore]
+        [property: BsonIgnore]
         [ObservableProperty]
         private bool isNameFocused;
 
@@ -181,7 +188,7 @@ namespace oprot.plot.wpf
         }
 
         #region Commands
-
+        [property: BsonIgnore]
         [RelayCommand]
         void DeleteFeature(GraphFeature f)
         {
@@ -228,127 +235,128 @@ namespace oprot.plot.wpf
             }
             return null;
         }
-/*
-        #region Duplicate Feature Command
-        void DuplicateFeatureExecute(GraphFeature f)
-        {
-            try
-            {
-                var newFeature = (GraphFeature)f.Clone();
-                newFeature.Feature.Name = "Copy of " + newFeature.Feature.Name;
-                //TODO
-                AddNewFeature(Groups[0], newFeature);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        bool CanDuplicateFeatureExecute(GraphFeature f)
-        {
-            return f != null;
-        }
-
-        [JsonIgnore]
-        public ICommand DuplicateFeature { get { return new MicroMvvm.RelayCommand<GraphFeature>(DuplicateFeatureExecute, CanDuplicateFeatureExecute); } }
-        #endregion
-*/
-/*
-        
-        #region Copy Feature Json Command
-        void CopyFeatureJsonExecute(GraphFeature f)
-        {
-            try
-            {
-                var jsonSerializerSettings = new JsonSerializerSettings()
+        /*
+                #region Duplicate Feature Command
+                void DuplicateFeatureExecute(GraphFeature f)
                 {
-                    TypeNameHandling = TypeNameHandling.All,
-                    Formatting = Newtonsoft.Json.Formatting.Indented
-
-                };
-                var json = JsonConvert.SerializeObject(f, jsonSerializerSettings);
-                Clipboard.SetText(json);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        bool CanCopyFeatureJsonExecute(GraphFeature f)
-        {
-            return f != null;
-        }
-
-        [JsonIgnore]
-        public ICommand CopyFeatureJson { get { return new MicroMvvm.RelayCommand<GraphFeature>(CopyFeatureJsonExecute, CanCopyFeatureJsonExecute); } }
-        #endregion
-
-        #region Copy Feature Base64 Command
-        void CopyFeatureBase64Execute(GraphFeature f)
-        {
-            try
-            {
-                var jsonSerializerSettings = new JsonSerializerSettings()
-                {
-                    TypeNameHandling = TypeNameHandling.All,
-                    Formatting = Newtonsoft.Json.Formatting.Indented
-
-                };
-                var json = JsonConvert.SerializeObject(f, jsonSerializerSettings);
-                var b64 = System.Convert.ToBase64String(Util.Zip(json));
-                Clipboard.SetText(b64);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        bool CanCopyFeatureBase64Execute(GraphFeature c)
-        {
-            return c != null;
-        }
-
-        [JsonIgnore]
-        public ICommand CopyFeatureBase64 { get { return new MicroMvvm.RelayCommand<GraphFeature>(CopyFeatureBase64Execute, CanCopyFeatureBase64Execute); } }
-        #endregion
-
-        #region Paste Feature Command
-        void PasteFeatureExecute(GraphFeature f)
-        {
-            try
-            {
-                string s = Clipboard.GetText();
-                GraphFeature o;
-                if (s[0] == '{')
-                {
-                    o = JsonConvert.DeserializeObject<GraphFeature>(s);
+                    try
+                    {
+                        var newFeature = (GraphFeature)f.Clone();
+                        newFeature.Feature.Name = "Copy of " + newFeature.Feature.Name;
+                        //TODO
+                        AddNewFeature(Groups[0], newFeature);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
                 }
-                else
+
+                bool CanDuplicateFeatureExecute(GraphFeature f)
                 {
-                    var base64EncodedBytes = System.Convert.FromBase64String(s);
-                    string s2 = Util.Unzip(base64EncodedBytes);
-                    o = JsonConvert.DeserializeObject<GraphFeature>(s2);
+                    return f != null;
                 }
-                AddNewFeature(Groups[0], o, Groups[0].Features.IndexOf(f) + 1);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
 
-        bool CanPasteFeatureExecute(GraphFeature f)
-        {
-            return f != null;
-        }
+                [JsonIgnore]
+                public ICommand DuplicateFeature { get { return new MicroMvvm.RelayCommand<GraphFeature>(DuplicateFeatureExecute, CanDuplicateFeatureExecute); } }
+                #endregion
+        */
+        /*
 
-        [JsonIgnore]
-        public ICommand PasteFeature { get { return new MicroMvvm.RelayCommand<GraphFeature>(PasteFeatureExecute, CanPasteFeatureExecute); } }
-        #endregion
-*/
+                #region Copy Feature Json Command
+                void CopyFeatureJsonExecute(GraphFeature f)
+                {
+                    try
+                    {
+                        var jsonSerializerSettings = new JsonSerializerSettings()
+                        {
+                            TypeNameHandling = TypeNameHandling.All,
+                            Formatting = Newtonsoft.Json.Formatting.Indented
+
+                        };
+                        var json = JsonConvert.SerializeObject(f, jsonSerializerSettings);
+                        Clipboard.SetText(json);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
+                }
+
+                bool CanCopyFeatureJsonExecute(GraphFeature f)
+                {
+                    return f != null;
+                }
+
+                [JsonIgnore]
+                public ICommand CopyFeatureJson { get { return new MicroMvvm.RelayCommand<GraphFeature>(CopyFeatureJsonExecute, CanCopyFeatureJsonExecute); } }
+                #endregion
+
+                #region Copy Feature Base64 Command
+                void CopyFeatureBase64Execute(GraphFeature f)
+                {
+                    try
+                    {
+                        var jsonSerializerSettings = new JsonSerializerSettings()
+                        {
+                            TypeNameHandling = TypeNameHandling.All,
+                            Formatting = Newtonsoft.Json.Formatting.Indented
+
+                        };
+                        var json = JsonConvert.SerializeObject(f, jsonSerializerSettings);
+                        var b64 = System.Convert.ToBase64String(Util.Zip(json));
+                        Clipboard.SetText(b64);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
+                }
+
+                bool CanCopyFeatureBase64Execute(GraphFeature c)
+                {
+                    return c != null;
+                }
+
+                [JsonIgnore]
+                public ICommand CopyFeatureBase64 { get { return new MicroMvvm.RelayCommand<GraphFeature>(CopyFeatureBase64Execute, CanCopyFeatureBase64Execute); } }
+                #endregion
+
+                #region Paste Feature Command
+                void PasteFeatureExecute(GraphFeature f)
+                {
+                    try
+                    {
+                        string s = Clipboard.GetText();
+                        GraphFeature o;
+                        if (s[0] == '{')
+                        {
+                            o = JsonConvert.DeserializeObject<GraphFeature>(s);
+                        }
+                        else
+                        {
+                            var base64EncodedBytes = System.Convert.FromBase64String(s);
+                            string s2 = Util.Unzip(base64EncodedBytes);
+                            o = JsonConvert.DeserializeObject<GraphFeature>(s2);
+                        }
+                        AddNewFeature(Groups[0], o, Groups[0].Features.IndexOf(f) + 1);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
+                }
+
+                bool CanPasteFeatureExecute(GraphFeature f)
+                {
+                    return f != null;
+                }
+
+                [JsonIgnore]
+                public ICommand PasteFeature { get { return new MicroMvvm.RelayCommand<GraphFeature>(PasteFeatureExecute, CanPasteFeatureExecute); } }
+                #endregion
+        */
+        [property: BsonIgnore]
         [RelayCommand]
         void AddFeature(GraphFeature g)
         {
@@ -377,7 +385,7 @@ namespace oprot.plot.wpf
             }
         }
 
-
+        [property: BsonIgnore]
         [RelayCommand]
         void Save()
         {
@@ -390,7 +398,7 @@ namespace oprot.plot.wpf
                 MessageBox.Show(ex.ToString());
             }
         }
-
+        [property: BsonIgnore]
         [RelayCommand]
         void SaveAs()
         {
@@ -399,18 +407,32 @@ namespace oprot.plot.wpf
                 SaveFileDialog d = new SaveFileDialog();
                 if (d.ShowDialog() ?? false)
                 {
+                    try
+                    {
+                        // Open database (or create if doesn't exist)
+                        using (var db = new LiteDatabase(d.FileName))
+                        {
+                            var col = db.GetCollection<MainViewModel>("oprot");
+                            col.Insert(this);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
+
                     var jsonSerializerSettings = new JsonSerializerSettings()
                     {
                         TypeNameHandling = TypeNameHandling.All,
                         Formatting = Newtonsoft.Json.Formatting.Indented
 
                     };
-                    XMin = ProtectionPlot.Axes[0].ActualMinimum;
-                    XMax = ProtectionPlot.Axes[0].ActualMaximum;
-                    YMin = ProtectionPlot.Axes[1].ActualMinimum;
-                    YMax = ProtectionPlot.Axes[1].ActualMaximum;
+                    //XMin = ProtectionPlot.Axes[0].ActualMinimum;
+                    //XMax = ProtectionPlot.Axes[0].ActualMaximum;
+                    //YMin = ProtectionPlot.Axes[1].ActualMinimum;
+                    //YMax = ProtectionPlot.Axes[1].ActualMaximum;
                     var json = JsonConvert.SerializeObject(this, jsonSerializerSettings);
-                    File.WriteAllText(d.FileName, json);
+                    File.WriteAllText(d.FileName + ".json", json);
                 }
             }
             catch (Exception ex)
@@ -418,7 +440,7 @@ namespace oprot.plot.wpf
                 MessageBox.Show(ex.ToString());
             }
         }
-
+        [property: BsonIgnore]
         [RelayCommand]
         void ExoprtImage()
         {

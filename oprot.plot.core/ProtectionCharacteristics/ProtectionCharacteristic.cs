@@ -5,11 +5,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using LiteDB;
 
 namespace oprot.plot.core
 {
     public  abstract partial class ProtectionCharacteristic : ObservableObject, IComparable
     {
+
+        [property: BsonId]
+        [ObservableProperty]
+        private int _characteristicId;
+
         /// <summary>
         /// TempMultiplier is a scaling factor that may be applied to a curve to take into account different network configurations
         /// such as a circuit or transformer out of service
